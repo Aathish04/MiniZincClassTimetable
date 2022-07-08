@@ -76,12 +76,12 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
     char curchar, prevchar = '\0';
     int linenum = 0, commentlinestate = 0;
     int cur_valuelen = 0;
-    *max_valuelen_out_ptr = 0,
+    *max_valuelen_out_ptr = 0;
     /* My method adds 1 to *num_records_out_ptr at every newline except first (cause headings).
     The last row ends with EOF, not newline, so init *num_records_out_ptr with 1.
     My method counts number of col_delimitchar to get *num_cols_out_ptr,
     and *num_cols_out_ptr will always be one greater than number of col_delimitchar.*/
-        *num_records_out_ptr = 1;
+    *num_records_out_ptr = 1;
     *num_cols_out_ptr = 1;
     while ((curchar = getc(csvfilepointer)) != EOF)
     {
