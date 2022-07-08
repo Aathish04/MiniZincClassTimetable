@@ -30,12 +30,14 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
 
     char curchar, prevchar = '\0';
     int linenum = 0, commentlinestate = 0;
-    int max_valuelen = 0, cur_valuelen = 0;
-    /* My method adds 1 to num_records at every newline except first (cause headings).
-    The last row ends with EOF, not newline, so init num_records with 1.
-    My method counts number of col_delimitchar to get num_cols,
-    and num_cols will always be one greater than number of col_delimitchar.*/
-    int num_records = 1, num_cols = 1;
+    int cur_valuelen = 0;
+    *max_valuelen_out_ptr = 0,
+    /* My method adds 1 to *num_records_out_ptr at every newline except first (cause headings).
+    The last row ends with EOF, not newline, so init *num_records_out_ptr with 1.
+    My method counts number of col_delimitchar to get *num_cols_out_ptr,
+    and *num_cols_out_ptr will always be one greater than number of col_delimitchar.*/
+    *num_records_out_ptr = 1;
+    *num_cols_out_ptr = 1;
     while ((curchar = getc(csvfilepointer)) != EOF)
     {
         if (prevchar == row_delimitchar)
@@ -56,14 +58,14 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
 
                     if (curchar == col_delimitchar)
                     {
-                        if (max_valuelen < cur_valuelen)
+                        if (*max_valuelen_out_ptr < cur_valuelen)
                         {
-                            max_valuelen = cur_valuelen;
+                            *max_valuelen_out_ptr = cur_valuelen;
                         }
                     }
                     else if (curchar == row_delimitchar)
                     {
-                        num_records++;
+                        (*num_records_out_ptr)++;
                     }
                     cur_valuelen = 0;
                 }
@@ -72,15 +74,12 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
             {
                 if (curchar == col_delimitchar)
                 {
-                    num_cols++;
+                    (*num_cols_out_ptr)++;
                 }
             }
         }
         prevchar = curchar;
     }
-    *num_cols_out_ptr = num_cols;
-    *num_records_out_ptr = num_records;
-    *max_valuelen_out_ptr = max_valuelen;
 }
 
 void fill_csv_raw_array(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int num_records, int num_cols, int value_str_len, char csv_raw_array[num_records][num_cols][value_str_len])
