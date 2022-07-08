@@ -121,4 +121,5 @@ void fill_csv_raw_array(char csvfilepath[], char col_delimitchar, char row_delim
         }
         prevchar = curchar;
     }
+    csv_raw_array[recordnum][colnum][raw_array_charcounter] = '\0';
 }
