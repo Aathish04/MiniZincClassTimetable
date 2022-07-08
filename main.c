@@ -10,14 +10,59 @@ int main()
     char SectionsCSVPath[] = "./inputdata/Sections.csv";
     char RoomsCSVPath[] = "./inputdata/Rooms.csv";
 
-    int sectioncsv_numrecords, sectioncsv_numcols, sectioncsv_longestvaluelen;
-    fill_csv_metadata(SectionsCSVPath, ',', '\n', '#', &sectioncsv_numrecords, &sectioncsv_numcols, &sectioncsv_longestvaluelen);
-    char sectionscsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_longestvaluelen + 1];
-    fill_csv_raw_array(SectionsCSVPath, ',', '\n', '#', sectioncsv_numrecords, sectioncsv_numcols, sectioncsv_longestvaluelen + 1, sectionscsv_raw_array);
+    int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
+    fill_csv_metadata(CoursesCSVPath, ',', '\n', '#', &coursescsv_numrecords, &coursescsv_numcols, &coursescsv_longestvaluelen);
+    char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_longestvaluelen + 1];
+    fill_csv_raw_array(CoursesCSVPath, ',', '\n', '#', coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen + 1, coursescsv_raw_array);
 
-    for(int i=0;i<sectioncsv_numrecords;i++){
-        for(int j=0;j<sectioncsv_numcols;j++){
-            printf("%s,",sectionscsv_raw_array[i][j]);
+    int facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen;
+    fill_csv_metadata(FacultyCSVPath, ',', '\n', '#', &facultycsv_numrecords, &facultycsv_numcols, &facultycsv_longestvaluelen);
+    char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_longestvaluelen + 1];
+    fill_csv_raw_array(FacultyCSVPath, ',', '\n', '#', facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array);
+
+    int sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen;
+    fill_csv_metadata(SectionsCSVPath, ',', '\n', '#', &sectionscsv_numrecords, &sectionscsv_numcols, &sectionscsv_longestvaluelen);
+    char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_longestvaluelen + 1];
+    fill_csv_raw_array(SectionsCSVPath, ',', '\n', '#', sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
+
+    int roomscsv_numrecords, roomscsv_numcols, roomscsv_longestvaluelen;
+    fill_csv_metadata(RoomsCSVPath, ',', '\n', '#', &roomscsv_numrecords, &roomscsv_numcols, &roomscsv_longestvaluelen);
+    char roomscsv_raw_array[roomscsv_numrecords][roomscsv_numcols][roomscsv_longestvaluelen + 1];
+    fill_csv_raw_array(RoomsCSVPath, ',', '\n', '#', roomscsv_numrecords, roomscsv_numcols, roomscsv_longestvaluelen + 1, roomscsv_raw_array);
+
+    printf("Printing Courses CSV:\n\n");
+    for (int i = 0; i < coursescsv_numrecords; i++)
+    {
+        for (int j = 0; j < coursescsv_numcols; j++)
+        {
+            printf("%s,", coursescsv_raw_array[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\nPrinting Faculty CSV:\n\n");
+    for (int i = 0; i < facultycsv_numrecords; i++)
+    {
+        for (int j = 0; j < facultycsv_numcols; j++)
+        {
+            printf("%s,", facultycsv_raw_array[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\nPrinting Sections CSV:\n\n");
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        for (int j = 0; j < sectionscsv_numcols; j++)
+        {
+            printf("%s,", sectionscsv_raw_array[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\nPrinting Rooms CSV:\n\n");
+    for (int i = 0; i < roomscsv_numrecords; i++)
+    {
+        for (int j = 0; j < roomscsv_numcols; j++)
+        {
+            printf("%s,", roomscsv_raw_array[i][j]);
         }
         printf("\n");
     }
@@ -36,7 +81,7 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
     The last row ends with EOF, not newline, so init *num_records_out_ptr with 1.
     My method counts number of col_delimitchar to get *num_cols_out_ptr,
     and *num_cols_out_ptr will always be one greater than number of col_delimitchar.*/
-    *num_records_out_ptr = 1;
+        *num_records_out_ptr = 1;
     *num_cols_out_ptr = 1;
     while ((curchar = getc(csvfilepointer)) != EOF)
     {
