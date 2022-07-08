@@ -55,17 +55,13 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
                 }
                 else
                 {
-
-                    if (curchar == col_delimitchar)
-                    {
-                        if (*max_valuelen_out_ptr < cur_valuelen)
-                        {
-                            *max_valuelen_out_ptr = cur_valuelen;
-                        }
-                    }
-                    else if (curchar == row_delimitchar)
+                    if (curchar == row_delimitchar)
                     {
                         (*num_records_out_ptr)++;
+                    }
+                    if (*max_valuelen_out_ptr < cur_valuelen)
+                    {
+                        *max_valuelen_out_ptr = cur_valuelen;
                     }
                     cur_valuelen = 0;
                 }
