@@ -6,6 +6,10 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
 void fill_csv_raw_array(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int num_records, int num_cols, int value_str_len, char csv_raw_array[num_records][num_cols][value_str_len]);
 int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
 int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
+void fill_output_array(
+    int num_unique_sections, int max_num_courses_for_single_section, int outputarray[num_unique_sections][max_num_courses_for_single_section][3],
+    int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
+    int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 
 int main()
 {
@@ -34,78 +38,15 @@ int main()
     char roomscsv_raw_array[roomscsv_numrecords][roomscsv_numcols][roomscsv_longestvaluelen + 1];
     fill_csv_raw_array(RoomsCSVPath, ',', '\n', '#', roomscsv_numrecords, roomscsv_numcols, roomscsv_longestvaluelen + 1, roomscsv_raw_array);
 
-    // printf("Printing Courses CSV:\n\n");
-    // for (int i = 0; i < coursescsv_numrecords; i++)
-    // {
-    //     for (int j = 0; j < coursescsv_numcols; j++)
-    //     {
-    //         printf("%s,", coursescsv_raw_array[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\nPrinting Faculty CSV:\n\n");
-    // for (int i = 0; i < facultycsv_numrecords; i++)
-    // {
-    //     for (int j = 0; j < facultycsv_numcols; j++)
-    //     {
-    //         printf("%s,", facultycsv_raw_array[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\nPrinting Sections CSV:\n\n");
-    // for (int i = 0; i < sectionscsv_numrecords; i++)
-    // {
-    //     for (int j = 0; j < sectionscsv_numcols; j++)
-    //     {
-    //         printf("%s,", sectionscsv_raw_array[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\nPrinting Rooms CSV:\n\n");
-    // for (int i = 0; i < roomscsv_numrecords; i++)
-    // {
-    //     for (int j = 0; j < roomscsv_numcols; j++)
-    //     {
-    //         printf("%s,", roomscsv_raw_array[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
     int max_num_courses_for_single_section = calc_max_num_courses_for_single_sec(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
     int num_unique_sections = calc_num_unique_sections(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
     int outputarray[num_unique_sections][max_num_courses_for_single_section][3];
-    for (int i = 0; i < num_unique_sections; i++)
-    {
-        for (int j = 0; j < max_num_courses_for_single_section; j++)
-        {
-            outputarray[i][j][0] = -1;
-            outputarray[i][j][1] = -1;
-            outputarray[i][j][2] = -1;
-        }
-    }
 
-    int current_section_id = -1;
-    int outputarraysectioncounter = 0;
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        int j;
-        int section_id_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
-        if (current_section_id != section_id_as_int)
-        {
-            current_section_id = section_id_as_int;
-            outputarraysectioncounter = 0;
-        }
-        for (j = 0; j < coursescsv_numrecords; j++)
-        {
-            if (strtol(sectionscsv_raw_array[i][4], NULL, 10) == strtol(coursescsv_raw_array[j][0], NULL, 10))
-            {
-                break;
-            }
-        }
-        outputarray[section_id_as_int][outputarraysectioncounter][0] = strtol(sectionscsv_raw_array[i][4], NULL, 10);
-        outputarray[section_id_as_int][outputarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
-        outputarray[section_id_as_int][outputarraysectioncounter++][2] = strtol(coursescsv_raw_array[j][4], NULL, 10);
-    }
+    fill_output_array(
+        num_unique_sections, max_num_courses_for_single_section, outputarray,
+        sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array,
+        coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen + 1, coursescsv_raw_array);
+
     for (int i = 0; i < num_unique_sections; i++)
     {
         printf("Starting SectionID %d:\n", i);
@@ -273,4 +214,43 @@ int int_value_in_array(int value, int array[], int arraylen)
         }
     }
     return 0;
+}
+
+void fill_output_array(
+    int num_unique_sections, int max_num_courses_for_single_section, int outputarray[num_unique_sections][max_num_courses_for_single_section][3],
+    int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
+    int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size])
+{
+    for (int i = 0; i < num_unique_sections; i++)
+    {
+        for (int j = 0; j < max_num_courses_for_single_section; j++)
+        {
+            outputarray[i][j][0] = -1;
+            outputarray[i][j][1] = -1;
+            outputarray[i][j][2] = -1;
+        }
+    }
+
+    int current_section_id = -1;
+    int outputarraysectioncounter = 0;
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        int j;
+        int section_id_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
+        if (current_section_id != section_id_as_int)
+        {
+            current_section_id = section_id_as_int;
+            outputarraysectioncounter = 0;
+        }
+        for (j = 0; j < coursescsv_numrecords; j++)
+        {
+            if (strtol(sectionscsv_raw_array[i][4], NULL, 10) == strtol(coursescsv_raw_array[j][0], NULL, 10))
+            {
+                break;
+            }
+        }
+        outputarray[section_id_as_int][outputarraysectioncounter][0] = strtol(sectionscsv_raw_array[i][4], NULL, 10);
+        outputarray[section_id_as_int][outputarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
+        outputarray[section_id_as_int][outputarraysectioncounter++][2] = strtol(coursescsv_raw_array[j][4], NULL, 10);
+    }
 }
