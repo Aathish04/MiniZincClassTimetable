@@ -10,6 +10,9 @@ void fill_output_array(
     int num_unique_sections, int max_num_courses_for_single_section, int outputarray[num_unique_sections][max_num_courses_for_single_section][3],
     int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
     int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
+void write_output_json_file(
+    char OutputJSONPath[],
+    int num_unique_sections, int max_num_courses_for_single_section, int outputarray[num_unique_sections][max_num_courses_for_single_section][3]);
 
 int main()
 {
@@ -17,6 +20,7 @@ int main()
     char FacultyCSVPath[] = "./inputdata/Faculty.csv";
     char SectionsCSVPath[] = "./inputdata/Sections.csv";
     char RoomsCSVPath[] = "./inputdata/Rooms.csv";
+    char OutputJSONPath[] = "InputData.json";
 
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
     fill_csv_metadata(CoursesCSVPath, ',', '\n', '#', &coursescsv_numrecords, &coursescsv_numcols, &coursescsv_longestvaluelen);
@@ -47,14 +51,7 @@ int main()
         sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array,
         coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen + 1, coursescsv_raw_array);
 
-    for (int i = 0; i < num_unique_sections; i++)
-    {
-        printf("Starting SectionID %d:\n", i);
-        for (int j = 0; j < max_num_courses_for_single_section; j++)
-        {
-            printf("%d,%d,%d\n", outputarray[i][j][0], outputarray[i][j][1], outputarray[i][j][2]);
-        }
-    }
+    write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, outputarray);
 }
 
 void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int *num_records_out_ptr, int *num_cols_out_ptr, int *max_valuelen_out_ptr)
@@ -253,4 +250,31 @@ void fill_output_array(
         outputarray[section_id_as_int][outputarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
         outputarray[section_id_as_int][outputarraysectioncounter++][2] = strtol(coursescsv_raw_array[j][4], NULL, 10);
     }
+}
+
+void write_output_json_file(char OutputJSONPath[], int num_unique_sections, int max_num_courses_for_single_section, int outputarray[num_unique_sections][max_num_courses_for_single_section][3])
+{
+    FILE *outputjsonfilepointer;
+    outputjsonfilepointer = fopen(OutputJSONPath, "w");
+    fprintf(outputjsonfilepointer, "{");
+    fprintf(outputjsonfilepointer, "\"sectiondetails\": [");
+    for (int i = 0; i < num_unique_sections; i++)
+    {
+        fprintf(outputjsonfilepointer, "[");
+        for (int j = 0; j < max_num_courses_for_single_section; j++)
+        {
+            fprintf(outputjsonfilepointer, "[%d, %d, %d]", outputarray[i][j][0], outputarray[i][j][1], outputarray[i][j][2]);
+            if (j < max_num_courses_for_single_section - 1)
+            {
+                fprintf(outputjsonfilepointer, ", ");
+            }
+        }
+        fprintf(outputjsonfilepointer, "]");
+        if (i < num_unique_sections - 1)
+        {
+            fprintf(outputjsonfilepointer, ", ");
+        }
+    }
+    fprintf(outputjsonfilepointer, "]");
+    fprintf(outputjsonfilepointer, "}");
 }
