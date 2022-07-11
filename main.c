@@ -13,6 +13,7 @@ void fill_sectiondetailsarray(
 void write_output_json_file(
     char OutputJSONPath[],
     int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3]);
+int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_teachers_array[sectionscsv_numrecords]);
 
 int main()
 {
@@ -51,6 +52,8 @@ int main()
         sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array,
         coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen + 1, coursescsv_raw_array);
 
+    int unique_teachers_array[sectionscsv_numrecords];
+    int num_unique_teachers = fill_unique_teachersarray_return_num_unique_teachers(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_teachers_array);
     write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray);
 }
 
@@ -250,6 +253,25 @@ void fill_sectiondetailsarray(
         sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
         sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter++][2] = strtol(coursescsv_raw_array[j][4], NULL, 10);
     }
+}
+
+int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_teachers_array[sectionscsv_numrecords])
+{
+    int first_teacher_id = strtol(sectionscsv_raw_array[0][5], NULL, 10);
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        unique_teachers_array[i] = first_teacher_id;
+    }
+    int unique_sections_array_index = 1;
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        int teacherid_as_int = strtol(sectionscsv_raw_array[i][5], NULL, 10);
+        if (!(int_value_in_array(teacherid_as_int, unique_teachers_array, sectionscsv_numrecords)))
+        {
+            unique_teachers_array[unique_sections_array_index++] = teacherid_as_int;
+        }
+    }
+    return unique_sections_array_index;
 }
 
 void write_output_json_file(char OutputJSONPath[], int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3])
