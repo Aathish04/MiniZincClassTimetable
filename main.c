@@ -12,7 +12,7 @@ void fill_sectiondetailsarray(
     int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 void write_output_json_file(
     char OutputJSONPath[],
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3]);
+    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3], int num_unique_teachers, int unique_teachers_array[]);
 int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_teachers_array[sectionscsv_numrecords]);
 
 int main()
@@ -54,7 +54,7 @@ int main()
 
     int unique_teachers_array[sectionscsv_numrecords];
     int num_unique_teachers = fill_unique_teachersarray_return_num_unique_teachers(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_teachers_array);
-    write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray);
+    write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray, num_unique_teachers, unique_teachers_array);
 }
 
 void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int *num_records_out_ptr, int *num_cols_out_ptr, int *max_valuelen_out_ptr)
@@ -274,7 +274,9 @@ int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numreco
     return unique_sections_array_index;
 }
 
-void write_output_json_file(char OutputJSONPath[], int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3])
+void write_output_json_file(
+    char OutputJSONPath[],
+    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3], int num_unique_teachers, int unique_teachers_array[])
 {
     FILE *outputjsonfilepointer;
     outputjsonfilepointer = fopen(OutputJSONPath, "w");
@@ -295,6 +297,16 @@ void write_output_json_file(char OutputJSONPath[], int num_unique_sections, int 
         if (i < num_unique_sections - 1)
         {
             fprintf(outputjsonfilepointer, ", ");
+        }
+    }
+    fprintf(outputjsonfilepointer, "],");
+    fprintf(outputjsonfilepointer, "\"teacherarray\": [");
+    for (int i = 0; i < num_unique_teachers; i++)
+    {
+        fprintf(outputjsonfilepointer, "%d", unique_teachers_array[i]);
+        if (i < num_unique_teachers - 1)
+        {
+            fprintf(outputjsonfilepointer, ",");
         }
     }
     fprintf(outputjsonfilepointer, "]");
