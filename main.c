@@ -14,7 +14,9 @@ void write_output_json_file(
     char OutputJSONPath[],
     int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
     int num_unique_teachers, int unique_teachers_array[],
-    int num_unique_courses, int unique_courses_array[]);
+    int num_unique_courses, int unique_courses_array[],
+    int num_slots_per_day,
+    int days_per_week);
 int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_teachers_array[sectionscsv_numrecords]);
 int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_courses_array[sectionscsv_numrecords]);
 
@@ -26,6 +28,8 @@ int main()
     char RoomsCSVPath[] = "./inputdata/Rooms.csv";
     char OutputJSONPath[] = "./InputData.json";
 
+    int num_slots_per_day = 2;
+    int days_per_week = 5;
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
     fill_csv_metadata(CoursesCSVPath, ',', '\n', '#', &coursescsv_numrecords, &coursescsv_numcols, &coursescsv_longestvaluelen);
     char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_longestvaluelen + 1];
@@ -61,7 +65,7 @@ int main()
     int unique_courses_array[sectionscsv_numrecords];
     int num_unique_courses = fill_unique_coursesarray_return_num_unique_courses(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_courses_array);
 
-    write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray, num_unique_teachers, unique_teachers_array, num_unique_courses, unique_courses_array);
+    write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray, num_unique_teachers, unique_teachers_array, num_unique_courses, unique_courses_array, num_slots_per_day, days_per_week);
 }
 
 void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int *num_records_out_ptr, int *num_cols_out_ptr, int *max_valuelen_out_ptr)
@@ -304,7 +308,9 @@ void write_output_json_file(
     char OutputJSONPath[],
     int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
     int num_unique_teachers, int unique_teachers_array[],
-    int num_unique_courses, int unique_courses_array[])
+    int num_unique_courses, int unique_courses_array[],
+    int num_slots_per_day,
+    int num_days_per_week)
 {
     FILE *outputjsonfilepointer;
     outputjsonfilepointer = fopen(OutputJSONPath, "w");
@@ -347,7 +353,9 @@ void write_output_json_file(
             fprintf(outputjsonfilepointer, ",");
         }
     }
-    fprintf(outputjsonfilepointer, "]");
+    fprintf(outputjsonfilepointer, "],");
+    fprintf(outputjsonfilepointer, "\"slots\":%d,", num_slots_per_day);
+    fprintf(outputjsonfilepointer, "\"days\":%d", num_days_per_week);
 
     fprintf(outputjsonfilepointer, "}");
 }
