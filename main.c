@@ -18,7 +18,8 @@ void write_output_json_file(
     int num_slots_per_day,
     int days_per_week,
     int num_courses_per_section,
-    int num_sections);
+    int num_sections,
+    int num_rooms, int roomsarray[]);
 int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_teachers_array[sectionscsv_numrecords]);
 int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_courses_array[sectionscsv_numrecords]);
 
@@ -67,7 +68,18 @@ int main()
     int unique_courses_array[sectionscsv_numrecords];
     int num_unique_courses = fill_unique_coursesarray_return_num_unique_courses(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_courses_array);
 
-    write_output_json_file(OutputJSONPath, num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray, num_unique_teachers, unique_teachers_array, num_unique_courses, unique_courses_array, num_slots_per_day, days_per_week,max_num_courses_for_single_section,num_unique_sections);
+    int rooms_array[roomscsv_numrecords];
+    for (int i = 0; i < roomscsv_numrecords; i++)
+    {
+        rooms_array[i] = strtol(roomscsv_raw_array[i][0], NULL, 10);
+    }
+    write_output_json_file(
+        OutputJSONPath,
+        num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
+        num_unique_teachers, unique_teachers_array,
+        num_unique_courses, unique_courses_array,
+        num_slots_per_day, days_per_week, max_num_courses_for_single_section, num_unique_sections,
+        roomscsv_numrecords, rooms_array);
 }
 
 void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int *num_records_out_ptr, int *num_cols_out_ptr, int *max_valuelen_out_ptr)
@@ -314,7 +326,8 @@ void write_output_json_file(
     int num_slots_per_day,
     int days_per_week,
     int num_courses_per_section,
-    int num_sections)
+    int num_sections,
+    int num_rooms, int roomsarray[])
 {
     FILE *outputjsonfilepointer;
     outputjsonfilepointer = fopen(OutputJSONPath, "w");
@@ -353,6 +366,16 @@ void write_output_json_file(
     {
         fprintf(outputjsonfilepointer, "%d", unique_courses_array[i]);
         if (i < num_unique_courses - 1)
+        {
+            fprintf(outputjsonfilepointer, ",");
+        }
+    }
+    fprintf(outputjsonfilepointer, "],");
+    fprintf(outputjsonfilepointer, "\"rooms\": [");
+    for (int i = 0; i < num_rooms; i++)
+    {
+        fprintf(outputjsonfilepointer, "%d", roomsarray[i]);
+        if (i < num_rooms - 1)
         {
             fprintf(outputjsonfilepointer, ",");
         }
