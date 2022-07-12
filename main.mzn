@@ -24,7 +24,6 @@ set of int: teachersindex = 1..num_teachers;
 set of int: rooms;
 int:num_rooms = length(rooms);
 set of int: coursesarray;
-% array[classList,properties] of int: classDetails;
 
 int: hours_per_week = 3;
 
@@ -32,6 +31,13 @@ int: hours_per_week = 3;
 array[teachersindex,daysPerWeek,slotsPerDay] of var coursesarray: teacherRoutine;
 array[arr_num_sections,daysPerWeek,slotsPerDay] of var coursesarray: sectionRoutine;
 array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomRoutine;
+
+function int: teacher_id_to_index(int:teacherid) = 
+   sum(  [ if teacherid = teachersarray[i] 
+              then i
+           else 0 endif  
+          | i in index_set(teachersarray) ]
+   );
 
 % Rules
 
@@ -46,14 +52,15 @@ forall(d in daysPerWeek,s in slotsPerDay)
            endif) <= num_rooms
     );
 
-constraint 
-forall(d in daysPerWeek,s in slotsPerDay)
-    (
-           sum(t in arr_num_sections)
-           (if teacherRoutine[t,d,s]!=0 
-               then 1 
-               else 0 
-           endif) <= num_rooms
-    );
+% Course-Section-Professor Constraint
+constraint
+forall(sec in arr_num_sections, d in daysPerWeek, s in slotsPerDay)(
+    if sectionRoutine[sec,d,s] > 0
+    then
+    forall(course in arr_num_courses_per_section)(
+        teacherRoutine[teacher_id_to_index(sectiondetails[sec,course,2]),d,s] == sectionRoutine[sec,d,s]
+        )
+    endif);
+
 % Method of Solving
 solve satisfy;
