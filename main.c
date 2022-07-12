@@ -19,7 +19,8 @@ void write_output_json_file(
     int days_per_week,
     int num_courses_per_section,
     int num_sections,
-    int num_rooms, int roomsarray[]);
+    int num_rooms, int roomsarray[],
+    int num_teachers);
 int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_teachers_array[sectionscsv_numrecords]);
 int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_courses_array[sectionscsv_numrecords]);
 
@@ -79,7 +80,7 @@ int main()
         num_unique_teachers, unique_teachers_array,
         num_unique_courses, unique_courses_array,
         num_slots_per_day, days_per_week, max_num_courses_for_single_section, num_unique_sections,
-        roomscsv_numrecords, rooms_array);
+        roomscsv_numrecords, rooms_array, num_unique_teachers);
 }
 
 void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int *num_records_out_ptr, int *num_cols_out_ptr, int *max_valuelen_out_ptr)
@@ -327,7 +328,8 @@ void write_output_json_file(
     int days_per_week,
     int num_courses_per_section,
     int num_sections,
-    int num_rooms, int roomsarray[])
+    int num_rooms, int roomsarray[],
+    int num_teachers)
 {
     FILE *outputjsonfilepointer;
     outputjsonfilepointer = fopen(OutputJSONPath, "w");
@@ -384,7 +386,7 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "\"slots\":%d,", num_slots_per_day);
     fprintf(outputjsonfilepointer, "\"days\":%d,", days_per_week);
     fprintf(outputjsonfilepointer, "\"num_courses_per_section\":%d,", num_courses_per_section);
-    fprintf(outputjsonfilepointer, "\"num_sections\":%d", num_sections);
-
+    fprintf(outputjsonfilepointer, "\"num_sections\":%d,", num_sections);
+    fprintf(outputjsonfilepointer, "\"num_teachers\":%d", num_teachers);
     fprintf(outputjsonfilepointer, "}");
 }
