@@ -11,19 +11,22 @@ int:slots;
 set of int: slotsPerDay = 1..slots;
 
 int:num_sections;
-set of int:arr_num_sections = 0..num_sections-1;
+set of int:arr_num_sections = 1..num_sections;
 int:num_courses_per_section;
-set of int:arr_num_courses_per_section = 0..num_courses_per_section-1;
+set of int:arr_num_courses_per_section = 1..num_courses_per_section;
 
-array[arr_num_sections,arr_num_courses_per_section,0..2] of int: sectiondetails;
+array[arr_num_sections,arr_num_courses_per_section,1..3] of int: sectiondetails;
 
 
 set of int: teachersarray;
 int: num_teachers;
-set of int: teachersindex = 1..num_teachers-1;
+set of int: teachersindex = 1..num_teachers;
 set of int: rooms;
+int:num_rooms = length(rooms);
 set of int: coursesarray;
 % array[classList,properties] of int: classDetails;
+
+int: hours_per_week = 3;
 
 % Final Output Timetable Arrays
 array[teachersindex,daysPerWeek,slotsPerDay] of var coursesarray: teacherRoutine;
@@ -32,35 +35,25 @@ array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomRoutine;
 
 % Rules
 
-% % Room Limitation Constraint
-% constraint 
-% forall(d in daysPerWeek,s in slotsPerDay)
-%     (
-%            sum(t in teacherList)
-%            (if teacherRoutine[t,d,s]!=0 
-%                then 1 
-%                else 0 
-%            endif) <= rooms
-%     );
+% Room Limitation Constraint
+constraint 
+forall(d in daysPerWeek,s in slotsPerDay)
+    (
+           sum(t in teachersindex)
+           (if teacherRoutine[t,d,s]!=0 
+               then 1 
+               else 0 
+           endif) <= num_rooms
+    );
 
-
-% constraint    
-% forall(i in courseList,sec in sectionList)(
-%   forall(d in daysPerWeek)
-%        (sum(s in slotsPerDay)
-%            (if sectionRoutine[sec,d,s] == i
-%            then 1
-%            else 0
-%            endif) <= 1));
-
-% constraint    
-% forall(i in courseList,teach in teacherList)(
-%   forall(d in daysPerWeek)
-%        (sum(s in slotsPerDay)
-%            (if teacherRoutine[teach,d,s] == i
-%            then 1
-%            else 0
-%            endif) <= 1));
-
+constraint 
+forall(d in daysPerWeek,s in slotsPerDay)
+    (
+           sum(t in arr_num_sections)
+           (if teacherRoutine[t,d,s]!=0 
+               then 1 
+               else 0 
+           endif) <= num_rooms
+    );
 % Method of Solving
 solve satisfy;
