@@ -31,9 +31,11 @@ int main()
     char SectionsCSVPath[] = "./inputdata/Sections.csv";
     char RoomsCSVPath[] = "./inputdata/Rooms.csv";
     char OutputJSONPath[] = "./InputData.json";
-    char COMMAND[] = "minizinc main.mzn InputData.json --solver chuffed --output-mode json";
-    int num_slots_per_day = 2;
+    char COMMAND[] = "minizinc main.mzn InputData.json --solver chuffed --json-stream --output-mode json";
+
+    int num_slots_per_day = 6;
     int days_per_week = 5;
+
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
     fill_csv_metadata(CoursesCSVPath, ',', '\n', '#', &coursescsv_numrecords, &coursescsv_numcols, &coursescsv_longestvaluelen);
     char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_longestvaluelen + 1];
@@ -81,12 +83,37 @@ int main()
         num_unique_courses, unique_courses_array,
         num_slots_per_day, days_per_week, max_num_courses_for_single_section, num_unique_sections,
         roomscsv_numrecords, rooms_array, num_unique_teachers);
-    
-    FILE* MiniZincCall = popen(COMMAND,"r");
-    char MiniZincCallOutput[2048];
-    fscanf(MiniZincCall, "%2048[^}]", MiniZincCallOutput);
+
+    FILE *MiniZincCall = popen(COMMAND, "r");
+    char curchar;
+    int charcounter = 0;
+    int chunksize = 128;
+    char *MiniZincCallOutput = malloc(chunksize);
+    if (MiniZincCallOutput == NULL)
+    {
+        fprintf(stderr, "out of memory\n");
+        exit(1);
+    }
+    while ((curchar = getc(MiniZincCall)) != EOF)
+    {
+        if (charcounter >= chunksize - 1)
+        {
+            /* time to make it bigger */
+            chunksize += 128;
+            MiniZincCallOutput = realloc(MiniZincCallOutput, chunksize);
+            if (MiniZincCallOutput == NULL)
+            {
+                fprintf(stderr, "out of memory\n");
+                exit(1);
+            }
+        }
+
+        MiniZincCallOutput[charcounter++] = curchar;
+    }
+    MiniZincCallOutput[charcounter++] = '\0';
     pclose(MiniZincCall);
-    printf("buffer is :%s\n", MiniZincCallOutput);
+
+    printf("buffer is :%s", MiniZincCallOutput);
     return 0;
 }
 
