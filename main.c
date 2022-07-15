@@ -45,6 +45,7 @@ int main()
     int num_slots_per_day = 6;
     int num_days_per_week = 5;
 
+    printf("Reading data from CSV Files... ");
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
     fill_csv_metadata(CoursesCSVPath, ',', '\n', '#', &coursescsv_numrecords, &coursescsv_numcols, &coursescsv_longestvaluelen);
     char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_longestvaluelen + 1];
@@ -85,6 +86,9 @@ int main()
     {
         rooms_array[i] = strtol(roomscsv_raw_array[i][0], NULL, 10);
     }
+    printf("Done.\n");
+
+    printf("Writing Data to JSON file... ");
     write_output_json_file(
         OutputJSONPath,
         num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
@@ -92,13 +96,15 @@ int main()
         num_unique_courses, unique_courses_array,
         num_slots_per_day, num_days_per_week, max_num_courses_for_single_section, num_unique_sections,
         roomscsv_numrecords, rooms_array, num_unique_teachers);
+    printf("Done.\n");
 
     int teacher_timetable_array[num_unique_teachers][num_days_per_week][num_slots_per_day];
 
     int section_timetable_array[num_unique_sections][num_days_per_week][num_slots_per_day];
 
     int room_timetable_array[roomscsv_numrecords][num_days_per_week][num_slots_per_day];
-
+    
+    printf("Calling MiniZinc and obtaining Timetables...\n");
     call_minizinc_and_fill_timetable_arrays(
         COMMAND, num_slots_per_day, num_days_per_week,
         num_unique_teachers, teacher_timetable_array,
@@ -146,7 +152,8 @@ int main()
             printf("\n");
         }
     }
-
+    
+    printf("Done.\n");
     return 0;
 }
 
