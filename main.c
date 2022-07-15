@@ -31,7 +31,7 @@ int main()
     char SectionsCSVPath[] = "./inputdata/Sections.csv";
     char RoomsCSVPath[] = "./inputdata/Rooms.csv";
     char OutputJSONPath[] = "./InputData.json";
-
+    char COMMAND[] = "minizinc main.mzn InputData.json --solver chuffed --output-mode json";
     int num_slots_per_day = 2;
     int days_per_week = 5;
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
@@ -81,6 +81,13 @@ int main()
         num_unique_courses, unique_courses_array,
         num_slots_per_day, days_per_week, max_num_courses_for_single_section, num_unique_sections,
         roomscsv_numrecords, rooms_array, num_unique_teachers);
+    
+    FILE* MiniZincCall = popen(COMMAND,"r");
+    char MiniZincCallOutput[2048];
+    fscanf(MiniZincCall, "%2048[^}]", MiniZincCallOutput);
+    pclose(MiniZincCall);
+    printf("buffer is :%s\n", MiniZincCallOutput);
+    return 0;
 }
 
 void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int *num_records_out_ptr, int *num_cols_out_ptr, int *max_valuelen_out_ptr)
@@ -136,6 +143,7 @@ void fill_csv_metadata(char csvfilepath[], char col_delimitchar, char row_delimi
         }
         prevchar = curchar;
     }
+    fclose(csvfilepointer);
 }
 
 void fill_csv_raw_array(char csvfilepath[], char col_delimitchar, char row_delimitchar, char commentchar, int num_records, int num_cols, int value_str_len, char csv_raw_array[num_records][num_cols][value_str_len])
@@ -182,6 +190,7 @@ void fill_csv_raw_array(char csvfilepath[], char col_delimitchar, char row_delim
         prevchar = curchar;
     }
     csv_raw_array[recordnum][colnum][raw_array_charcounter] = '\0';
+    fclose(csvfilepointer);
 }
 
 int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size])
@@ -389,4 +398,5 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "\"num_sections\":%d,", num_sections);
     fprintf(outputjsonfilepointer, "\"num_teachers\":%d", num_teachers);
     fprintf(outputjsonfilepointer, "}");
+    fclose(outputjsonfilepointer);
 }
