@@ -28,9 +28,9 @@ set of int: coursesarray;
 int: hours_per_week = 3;
 
 % Final Output Timetable Arrays
-array[teachersindex,daysPerWeek,slotsPerDay] of var coursesarray: teacherRoutine;
-array[arr_num_sections,daysPerWeek,slotsPerDay] of var coursesarray: sectionRoutine;
-array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomRoutine;
+array[teachersindex,daysPerWeek,slotsPerDay] of var coursesarray: teacherTimetable;
+array[arr_num_sections,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
+array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomTimetable;
 
 function int: teacher_id_to_index(int:teacherid) = 
    sum(  [ if teacherid = teachersarray[i] 
@@ -46,7 +46,7 @@ constraint
 forall(d in daysPerWeek,s in slotsPerDay)
     (
            sum(t in teachersindex)
-           (if teacherRoutine[t,d,s]!=0 
+           (if teacherTimetable[t,d,s]!=0 
                then 1 
                else 0 
            endif) <= num_rooms
@@ -55,10 +55,10 @@ forall(d in daysPerWeek,s in slotsPerDay)
 % Course-Section-Professor Constraint
 constraint
 forall(sec in arr_num_sections, d in daysPerWeek, s in slotsPerDay)(
-    if sectionRoutine[sec,d,s] > 0
+    if sectionTimetable[sec,d,s] > 0
     then
     forall(course in arr_num_courses_per_section)(
-        teacherRoutine[teacher_id_to_index(sectiondetails[sec,course,2]),d,s] == sectionRoutine[sec,d,s]
+        teacherTimetable[teacher_id_to_index(sectiondetails[sec,course,2]),d,s] == sectionTimetable[sec,d,s]
         )
     endif);
 
