@@ -28,10 +28,10 @@ int fill_unique_teachersarray_return_num_unique_teachers(int sectionscsv_numreco
 int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_courses_array[sectionscsv_numrecords]);
 
 void call_minizinc_and_fill_timetable_arrays(
-    char COMMAND[],int num_slots_per_day,int num_days_per_week,
+    char COMMAND[], int num_slots_per_day, int num_days_per_week,
     int num_teachers, int teacher_timetable_array[num_teachers][num_days_per_week][num_slots_per_day],
-    int num_sections,int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
-    int num_rooms,int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day]);
+    int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
+    int num_rooms, int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day]);
 
 int main()
 {
@@ -98,42 +98,50 @@ int main()
     int section_timetable_array[num_unique_sections][num_days_per_week][num_slots_per_day];
 
     int room_timetable_array[roomscsv_numrecords][num_days_per_week][num_slots_per_day];
-    
+
     call_minizinc_and_fill_timetable_arrays(
-        COMMAND,num_slots_per_day,num_days_per_week,
-        num_unique_teachers,teacher_timetable_array,
-        num_unique_sections,section_timetable_array,
-        roomscsv_numrecords,room_timetable_array
-        );
-    
-    for(int i=0;i<num_unique_teachers;i++){
-        printf("Teacher: %d\n",i);
-        for(int j=0;j<num_days_per_week;j++){
-            printf("Day %d: \t",j);
-            for(int k=0;k<num_slots_per_day;k++){
-                printf("%d ",teacher_timetable_array[i][j][k]);
+        COMMAND, num_slots_per_day, num_days_per_week,
+        num_unique_teachers, teacher_timetable_array,
+        num_unique_sections, section_timetable_array,
+        roomscsv_numrecords, room_timetable_array);
+
+    for (int i = 0; i < num_unique_teachers; i++)
+    {
+        printf("Teacher: %d\n", i);
+        for (int j = 0; j < num_days_per_week; j++)
+        {
+            printf("Day %d: \t", j);
+            for (int k = 0; k < num_slots_per_day; k++)
+            {
+                printf("%d ", teacher_timetable_array[i][j][k]);
             }
             printf("\n");
         }
     }
 
-    for(int i=0;i<num_unique_sections;i++){
-        printf("Section: %d\n",i);
-        for(int j=0;j<num_days_per_week;j++){
-            printf("Day %d: \t",j);
-            for(int k=0;k<num_slots_per_day;k++){
-                printf("%d ",section_timetable_array[i][j][k]);
+    for (int i = 0; i < num_unique_sections; i++)
+    {
+        printf("Section: %d\n", i);
+        for (int j = 0; j < num_days_per_week; j++)
+        {
+            printf("Day %d: \t", j);
+            for (int k = 0; k < num_slots_per_day; k++)
+            {
+                printf("%d ", section_timetable_array[i][j][k]);
             }
             printf("\n");
         }
     }
 
-    for(int i=0;i<roomscsv_numrecords;i++){
-        printf("Room: %d\n",i);
-        for(int j=0;j<num_days_per_week;j++){
-            printf("Day %d: \t",j);
-            for(int k=0;k<num_slots_per_day;k++){
-                printf("%d ",room_timetable_array[i][j][k]);
+    for (int i = 0; i < roomscsv_numrecords; i++)
+    {
+        printf("Room: %d\n", i);
+        for (int j = 0; j < num_days_per_week; j++)
+        {
+            printf("Day %d: \t", j);
+            for (int k = 0; k < num_slots_per_day; k++)
+            {
+                printf("%d ", room_timetable_array[i][j][k]);
             }
             printf("\n");
         }
@@ -454,11 +462,11 @@ void write_output_json_file(
 }
 
 void call_minizinc_and_fill_timetable_arrays(
-    char COMMAND[],int num_slots_per_day,int num_days_per_week,
+    char COMMAND[], int num_slots_per_day, int num_days_per_week,
     int num_teachers, int teacher_timetable_array[num_teachers][num_days_per_week][num_slots_per_day],
-    int num_sections,int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
-    int num_rooms,int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day]){
-
+    int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
+    int num_rooms, int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day])
+{
 
     FILE *MiniZincCall = popen(COMMAND, "r");
     char curchar;
@@ -488,77 +496,97 @@ void call_minizinc_and_fill_timetable_arrays(
     }
     MiniZincCallOutput[charcounter] = '\0';
     pclose(MiniZincCall);
-    
-    typedef enum {TEACHER=0,SECTION=1,ROOM=2,NONE=-1} timetable_kind;
-    int teacherid=0,teacherday=0,teacherslot=0;
-    int sectionid=0,sectionday=0,sectionslot=0;
-    int roomid=0,roomday=0,roomslot=0;
+
+    typedef enum
+    {
+        TEACHER = 0,
+        SECTION = 1,
+        ROOM = 2,
+        NONE = -1
+    } timetable_kind;
+    int teacherid = 0, teacherday = 0, teacherslot = 0;
+    int sectionid = 0, sectionday = 0, sectionslot = 0;
+    int roomid = 0, roomday = 0, roomslot = 0;
     jsmn_parser json_parser;
     jsmn_init(&json_parser);
     int num_tokens = jsmn_parse(&json_parser, MiniZincCallOutput, charcounter, NULL, -1);
     jsmntok_t tokens_array[num_tokens];
 
     jsmn_init(&json_parser);
-    jsmn_parse(&json_parser, MiniZincCallOutput, charcounter,tokens_array, num_tokens);
+    jsmn_parse(&json_parser, MiniZincCallOutput, charcounter, tokens_array, num_tokens);
     char last_string_key_read[17];
-    timetable_kind current_timetable_kind = NONE; 
-    for (int i=0;i<num_tokens;i++){
+    timetable_kind current_timetable_kind = NONE;
+    for (int i = 0; i < num_tokens; i++)
+    {
         jsmntok_t key = tokens_array[i];
         unsigned int length = key.end - key.start;
-        char keyString[length + 1];    
+        char keyString[length + 1];
         memcpy(keyString, &MiniZincCallOutput[key.start], length);
         keyString[length] = '\0';
-        if (key.type==JSMN_STRING){
-            if (!(strcmp(keyString,"teacherTimetable"))){
+        if (key.type == JSMN_STRING)
+        {
+            if (!(strcmp(keyString, "teacherTimetable")))
+            {
                 current_timetable_kind = TEACHER;
             }
-            else if (!(strcmp(keyString,"sectionTimetable"))){
+            else if (!(strcmp(keyString, "sectionTimetable")))
+            {
                 current_timetable_kind = SECTION;
             }
-            else if (!(strcmp(keyString,"roomTimetable"))){
+            else if (!(strcmp(keyString, "roomTimetable")))
+            {
                 current_timetable_kind = ROOM;
-            }else{
+            }
+            else
+            {
                 current_timetable_kind = NONE;
             }
         }
-        if (key.type==JSMN_PRIMITIVE){
-            if (current_timetable_kind == TEACHER){
+        if (key.type == JSMN_PRIMITIVE)
+        {
+            if (current_timetable_kind == TEACHER)
+            {
                 teacher_timetable_array[teacherid][teacherday][teacherslot++] = strtol(keyString, NULL, 10);
-                if (teacherslot==num_slots_per_day){
+                if (teacherslot == num_slots_per_day)
+                {
                     teacherday++;
-                    teacherslot=0;
-
+                    teacherslot = 0;
                 }
-                if(teacherday==num_days_per_week){
+                if (teacherday == num_days_per_week)
+                {
                     teacherid++;
-                    teacherday=0;
-                    teacherslot=0;
+                    teacherday = 0;
+                    teacherslot = 0;
                 }
             }
-            else if (current_timetable_kind == SECTION){
+            else if (current_timetable_kind == SECTION)
+            {
                 section_timetable_array[sectionid][sectionday][sectionslot++] = strtol(keyString, NULL, 10);
-                if (sectionslot==num_slots_per_day){
+                if (sectionslot == num_slots_per_day)
+                {
                     sectionday++;
-                    sectionslot=0;
-
+                    sectionslot = 0;
                 }
-                if(sectionday==num_days_per_week){
+                if (sectionday == num_days_per_week)
+                {
                     sectionid++;
-                    sectionday=0;
-                    sectionslot=0;
+                    sectionday = 0;
+                    sectionslot = 0;
                 }
             }
-            else if (current_timetable_kind == ROOM){
+            else if (current_timetable_kind == ROOM)
+            {
                 room_timetable_array[sectionid][sectionday][sectionslot++] = strtol(keyString, NULL, 10);
-                if (roomslot==num_slots_per_day){
+                if (roomslot == num_slots_per_day)
+                {
                     roomday++;
-                    roomslot=0;
-
+                    roomslot = 0;
                 }
-                if(roomday==num_days_per_week){
+                if (roomday == num_days_per_week)
+                {
                     roomid++;
-                    roomday=0;
-                    roomslot=0;
+                    roomday = 0;
+                    roomslot = 0;
                 }
             }
         }
