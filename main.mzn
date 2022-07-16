@@ -52,6 +52,17 @@ forall(d in daysPerWeek,s in slotsPerDay)
            endif) <= num_rooms
     );
 
+% limiting number of hours per day for faculty
+constraint 
+forall(d in daysPerWeek,t in teachersindex)
+    (
+        sum(s in slotsPerDay)
+           (if teacherRoutine[t,d,s]!=0 
+               then 1 
+               else 0 
+           endif) < 4
+    );
+
 % Course-Section-Professor Constraint
 constraint
 forall(sec in arr_num_sections, d in daysPerWeek, s in slotsPerDay)(
@@ -61,6 +72,16 @@ forall(sec in arr_num_sections, d in daysPerWeek, s in slotsPerDay)(
         teacherTimetable[teacher_id_to_index(sectiondetails[sec,course,2]),d,s] == sectionTimetable[sec,d,s]
         )
     endif);
+
+% Faculty - FacultySubject Constraint
+constraint
+forall(t in teachersindex, d in daysPerWeek, s in slotsPerDay)(
+    forall(sec in arr_num_sections)(
+        forall(course in arr_num_courses_per_section)(
+        if sectiondetails[sec,course,2] != teachersarray[t]
+        then teacherRoutine[t,d,s] != sectiondetails[sec,course,2]
+        endif))
+);
 
 % Method of Solving
 solve satisfy;
