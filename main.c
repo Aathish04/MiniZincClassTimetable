@@ -42,8 +42,8 @@ int main()
     char OutputJSONPath[] = "./InputData.json";
     char COMMAND[] = "minizinc main.mzn InputData.json --solver chuffed --json-stream --output-mode json";
 
-    int num_slots_per_day = 6;
-    int num_days_per_week = 5;
+    int num_slots_per_day = 2;
+    int num_days_per_week = 2;
 
     printf("Reading data from CSV Files... ");
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
@@ -89,13 +89,13 @@ int main()
     printf("Done.\n");
 
     printf("Writing Data to JSON file... ");
-    write_output_json_file(
-        OutputJSONPath,
-        num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
-        num_unique_teachers, unique_teachers_array,
-        num_unique_courses, unique_courses_array,
-        num_slots_per_day, num_days_per_week, max_num_courses_for_single_section, num_unique_sections,
-        roomscsv_numrecords, rooms_array, num_unique_teachers);
+    // write_output_json_file(
+    //     OutputJSONPath,
+    //     num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
+    //     num_unique_teachers, unique_teachers_array,
+    //     num_unique_courses, unique_courses_array,
+    //     num_slots_per_day, num_days_per_week, max_num_courses_for_single_section, num_unique_sections,
+    //     roomscsv_numrecords, rooms_array, num_unique_teachers);
     printf("Done.\n");
 
     int teacher_timetable_array[num_unique_teachers][num_days_per_week][num_slots_per_day];

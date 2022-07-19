@@ -83,5 +83,16 @@ forall(t in teachersindex, d in daysPerWeek, s in slotsPerDay)(
         endif))
 );
 
+% Faculty Occupancy Constraint
+constraint 
+forall(d in daysPerWeek,t in teachersindex)
+    (
+        sum(s in slotsPerDay)
+           (if teacherTimetable[t,d,s]!=0 
+               then 1 
+               else 0 
+           endif) > 0
+    );
+
 % Method of Solving
 solve satisfy;
