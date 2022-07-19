@@ -89,13 +89,13 @@ int main()
     printf("Done.\n");
 
     printf("Writing Data to JSON file... ");
-    // write_output_json_file(
-    //     OutputJSONPath,
-    //     num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
-    //     num_unique_teachers, unique_teachers_array,
-    //     num_unique_courses, unique_courses_array,
-    //     num_slots_per_day, num_days_per_week, max_num_courses_for_single_section, num_unique_sections,
-    //     roomscsv_numrecords, rooms_array, num_unique_teachers);
+    write_output_json_file(
+        OutputJSONPath,
+        num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
+        num_unique_teachers, unique_teachers_array,
+        num_unique_courses, unique_courses_array,
+        num_slots_per_day, num_days_per_week, max_num_courses_for_single_section, num_unique_sections,
+        roomscsv_numrecords, rooms_array, num_unique_teachers);
     printf("Done.\n");
 
     int teacher_timetable_array[num_unique_teachers][num_days_per_week][num_slots_per_day];
@@ -439,7 +439,7 @@ void write_output_json_file(
         }
     }
     fprintf(outputjsonfilepointer, "],");
-    fprintf(outputjsonfilepointer, "\"coursesarray\": [");
+    fprintf(outputjsonfilepointer, "\"coursesarray\": [0,"); // Add course 0 (free period) manually here.
     for (int i = 0; i < num_unique_courses; i++)
     {
         fprintf(outputjsonfilepointer, "%d", unique_courses_array[i]);
@@ -583,7 +583,7 @@ void call_minizinc_and_fill_timetable_arrays(
             }
             else if (current_timetable_kind == ROOM)
             {
-                room_timetable_array[sectionid][sectionday][sectionslot++] = strtol(keyString, NULL, 10);
+                room_timetable_array[roomid][roomday][roomslot++] = strtol(keyString, NULL, 10);
                 if (roomslot == num_slots_per_day)
                 {
                     roomday++;
