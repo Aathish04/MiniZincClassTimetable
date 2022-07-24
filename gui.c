@@ -28,11 +28,17 @@ static void open_selector_dialog(GtkButton *button, gpointer data)
   gtk_native_dialog_show(GTK_NATIVE_DIALOG(dialog));
 }
 
+static void solve_for_timetable(GtkButton *button, gpointer data)
+{
+  g_print("Okay.\n");
+}
+
 static void activate(GtkApplication *app, gpointer user_data)
 {
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
+  GtkWidget *label;
   GtkWidget *pathtextentry;
 
   GtkFileChooserNative *fileselectordialog;
@@ -55,7 +61,7 @@ static void activate(GtkApplication *app, gpointer user_data)
   gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
   gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 0, 1, 1);
 
-  button = gtk_button_new_with_label("Set File");
+  button = gtk_button_new_with_label("Set Courses CSV File");
   g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
   g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
   gtk_grid_attach(GTK_GRID(grid), button, 1, 0, 1, 1);
@@ -66,7 +72,7 @@ static void activate(GtkApplication *app, gpointer user_data)
   gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
   gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 1, 1, 1);
 
-  button = gtk_button_new_with_label("Set File");
+  button = gtk_button_new_with_label("Set Faculty CSV File");
   g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
   g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
   gtk_grid_attach(GTK_GRID(grid), button, 1, 1, 1, 1);
@@ -77,7 +83,7 @@ static void activate(GtkApplication *app, gpointer user_data)
   gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
   gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 2, 1, 1);
 
-  button = gtk_button_new_with_label("Set File");
+  button = gtk_button_new_with_label("Set Sections CSV File");
   g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
   g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
   gtk_grid_attach(GTK_GRID(grid), button, 1, 2, 1, 1);
@@ -88,15 +94,37 @@ static void activate(GtkApplication *app, gpointer user_data)
   gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
   gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 3, 1, 1);
 
-  button = gtk_button_new_with_label("Set File");
+  button = gtk_button_new_with_label("Set Rooms CSV File");
   g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
   g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
   gtk_grid_attach(GTK_GRID(grid), button, 1, 3, 1, 1);
 
+  label = gtk_label_new("Days Per Week: ");
+  gtk_grid_attach(
+      GTK_GRID(grid),
+      label,
+      0, 4, 1, 1);
+  button = gtk_spin_button_new(
+      gtk_adjustment_new(2.0, 1.0, 7.0, 1.0, 1.0, 0.0),
+      1.0, 0);
+  gtk_grid_attach(GTK_GRID(grid), button, 1, 4, 1, 1);
+
+  label = gtk_label_new("Slots Per Day: ");
+  gtk_grid_attach(
+      GTK_GRID(grid),
+      label,
+      0, 5, 1, 1);
+  button = gtk_spin_button_new(gtk_adjustment_new(6.0, 2.0, 20.0, 1.0, 1.0, 0.0), 1.0, 0);
+  gtk_grid_attach(GTK_GRID(grid), button, 1, 5, 1, 1);
+
+  button = gtk_button_new_with_label("Solve for Timetable");
+  g_signal_connect_swapped(button, "clicked", G_CALLBACK(solve_for_timetable), window);
+  gtk_grid_attach(GTK_GRID(grid), button, 0, 6, 2, 1);
+
   button = gtk_button_new_with_label("Quit");
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(gtk_window_destroy), window);
+  gtk_grid_attach(GTK_GRID(grid), button, 0, 7, 2, 1);
 
-  gtk_grid_attach(GTK_GRID(grid), button, 0, 4, 2, 1);
   gtk_widget_show(window);
 }
 
