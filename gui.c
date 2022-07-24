@@ -20,8 +20,10 @@ static void on_filechooser_response(GtkNativeDialog *native, int response)
   gtk_native_dialog_hide(native);
 }
 
-static void open_selector_dialog(GtkDialog *dialog, gpointer data)
+static void open_selector_dialog(GtkButton *button, gpointer data)
 {
+  GtkFileChooserNative *dialog = data;
+  g_object_set_data(G_OBJECT(dialog), "pathtextentry", g_object_get_data(G_OBJECT(button), "pathtextentry"));
   g_signal_connect(dialog, "response", G_CALLBACK(on_filechooser_response), NULL);
   gtk_native_dialog_show(GTK_NATIVE_DIALOG(dialog));
 }
@@ -52,10 +54,10 @@ static void activate(GtkApplication *app, gpointer user_data)
   gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Courses CSV Path");
   gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
   gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 0, 1, 1);
-  g_object_set_data(G_OBJECT(fileselectordialog), "pathtextentry", pathtextentry);
 
   button = gtk_button_new_with_label("Set File");
-  g_signal_connect_swapped(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
+  g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
+  g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
   gtk_grid_attach(GTK_GRID(grid), button, 1, 0, 1, 1);
 
   button = gtk_button_new_with_label("Quit");
