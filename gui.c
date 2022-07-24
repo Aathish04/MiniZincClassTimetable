@@ -60,10 +60,43 @@ static void activate(GtkApplication *app, gpointer user_data)
   g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
   gtk_grid_attach(GTK_GRID(grid), button, 1, 0, 1, 1);
 
+  pathtextentry = gtk_entry_new();
+  gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), facultycsvpath, -1);
+  gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Faculty CSV Path");
+  gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
+  gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 1, 1, 1);
+
+  button = gtk_button_new_with_label("Set File");
+  g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
+  g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
+  gtk_grid_attach(GTK_GRID(grid), button, 1, 1, 1, 1);
+
+  pathtextentry = gtk_entry_new();
+  gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), roomscsvpath, -1);
+  gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Sections CSV Path");
+  gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
+  gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 2, 1, 1);
+
+  button = gtk_button_new_with_label("Set File");
+  g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
+  g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
+  gtk_grid_attach(GTK_GRID(grid), button, 1, 2, 1, 1);
+
+  pathtextentry = gtk_entry_new();
+  gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), sectionscsvpath, -1);
+  gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Rooms CSV Path");
+  gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
+  gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 3, 1, 1);
+
+  button = gtk_button_new_with_label("Set File");
+  g_object_set_data(G_OBJECT(button), "pathtextentry", pathtextentry);
+  g_signal_connect(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
+  gtk_grid_attach(GTK_GRID(grid), button, 1, 3, 1, 1);
+
   button = gtk_button_new_with_label("Quit");
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(gtk_window_destroy), window);
 
-  gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(grid), button, 0, 4, 2, 1);
   gtk_widget_show(window);
 }
 
