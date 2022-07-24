@@ -10,16 +10,14 @@ static void on_filechooser_response(GtkNativeDialog *native, int response)
   if (response == GTK_RESPONSE_ACCEPT)
   {
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(native);
+    GtkWidget *pathtextentry = g_object_get_data(G_OBJECT(native), "pathtextentry");
     GFile *file = gtk_file_chooser_get_file(chooser);
-    g_print("%s", g_file_get_path(file));
+    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), g_file_get_path(file), -1);
+    gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), gtk_entry_get_placeholder_text(GTK_ENTRY(pathtextentry)));
     gtk_native_dialog_hide(native);
     g_object_unref(file);
   }
-  // else if(response == GTK_RESPONSE_DELETE_EVENT){
-  //   gtk_native_dialog_hide(native);
-  // }
   gtk_native_dialog_hide(native);
-  // g_object_unref(native); // Only do this if you want to completely destroy the dialog box.
 }
 
 static void open_selector_dialog(GtkDialog *dialog, gpointer data)
@@ -33,13 +31,12 @@ static void activate(GtkApplication *app, gpointer user_data)
   GtkWidget *window;
   GtkWidget *grid;
   GtkWidget *button;
-  GtkWidget *textentry;
+  GtkWidget *pathtextentry;
 
   GtkFileChooserNative *fileselectordialog;
 
   window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), "MiniZinc TimeTable Generator");
-  
 
   grid = gtk_grid_new();
   gtk_window_set_child(GTK_WINDOW(window), grid);
@@ -50,10 +47,12 @@ static void activate(GtkApplication *app, gpointer user_data)
       GTK_FILE_CHOOSER_ACTION_OPEN,
       "Open", "Cancel");
 
-  textentry = gtk_entry_new();
-  gtk_entry_set_placeholder_text(GTK_ENTRY(textentry), coursescsvpath);
-  gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(textentry)), coursescsvpath, -1);
-  gtk_grid_attach(GTK_GRID(grid), textentry, 0, 0, 1, 1);
+  pathtextentry = gtk_entry_new();
+  gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), coursescsvpath, -1);
+  gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Courses CSV Path");
+  gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
+  gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 0, 1, 1);
+  g_object_set_data(G_OBJECT(fileselectordialog), "pathtextentry", pathtextentry);
 
   button = gtk_button_new_with_label("Set File");
   g_signal_connect_swapped(button, "clicked", G_CALLBACK(open_selector_dialog), fileselectordialog);
