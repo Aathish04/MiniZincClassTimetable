@@ -183,10 +183,28 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     }
 
     GtkWidget *outputwindow;
-    GtkWidget *outputcolumnview;
 
+    GtkListStore *store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_BOOLEAN);
+    
+    GtkTreeIter iter;
+
+    gtk_list_store_append(store, &iter);  /* Acquire an iterator */
+    gtk_list_store_set(store,&iter,0,"The Principle of Reason",-1);
+    gtk_list_store_set(store,&iter,1,1,-1);
+    
+    GtkWidget *tree;
+    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+
+    GtkCellRenderer *renderer;
+    GtkTreeViewColumn *column;
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes ("Name",renderer,"text", 0, NULL);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
+    column = gtk_tree_view_column_new_with_attributes ("In Stock",renderer,"text", 1, NULL);
+    gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
     outputwindow = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(outputwindow), "TimeTable Output");
+    gtk_window_set_child(GTK_WINDOW(outputwindow), tree);
     gtk_widget_show(outputwindow);
 
     g_print("Done.\n");
