@@ -184,33 +184,42 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     GtkWidget *outputwindow;
 
-    int treeviewnum_cols = 2;
+    char *DaysOfWeek[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    int treeviewnum_cols = num_slots_per_day + 1;
+
     GType col_datatypes[treeviewnum_cols];
-    for(int i=0;i<treeviewnum_cols;i++){
+    for (int i = 0; i < treeviewnum_cols; i++)
+    {
         col_datatypes[i] = G_TYPE_STRING;
     }
-    GtkListStore *store = gtk_list_store_newv(treeviewnum_cols,col_datatypes);
+    GtkListStore *store = gtk_list_store_newv(treeviewnum_cols, col_datatypes);
 
     GtkTreeIter iter;
-
-    gtk_list_store_append(store, &iter);  /* Acquire an iterator */
-    gtk_list_store_set(store,&iter,0,"The Principle of Reason",-1);
-    gtk_list_store_set(store,&iter,1,"1",-1);
-
-    gtk_list_store_append(store, &iter);  /* Acquire an iterator */
-    gtk_list_store_set(store,&iter,0,"The Brahmanda Purana",-1);
-    gtk_list_store_set(store,&iter,1,"2",-1);
+    for (int dayofweek = 0; dayofweek < num_days_per_week; dayofweek++)
+    {
+        gtk_list_store_append(store, &iter);
+        gtk_list_store_set(store, &iter, 0, DaysOfWeek[dayofweek], -1);
+        for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+        {
+            gtk_list_store_set(store, &iter, treeviewcolnum, "UCS2276", -1);
+        }
+    }
 
     GtkWidget *tree;
-    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+    tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes ("Name",renderer,"text", 0, NULL);
-    gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
-    column = gtk_tree_view_column_new_with_attributes ("In Stock",renderer,"text", 1, NULL);
-    gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
+
+    column = gtk_tree_view_column_new_with_attributes("Day", renderer, "text", 0, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+    for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+    {
+        gchar *columnname = g_strdup_printf("Slot %i", treeviewcolnum);
+        column = gtk_tree_view_column_new_with_attributes(columnname, renderer, "text", treeviewcolnum, NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+    }
     outputwindow = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(outputwindow), "TimeTable Output");
     gtk_window_set_child(GTK_WINDOW(outputwindow), tree);
