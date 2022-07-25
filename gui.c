@@ -188,9 +188,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     outputwindow = gtk_window_new();
     gtk_window_set_title(GTK_WINDOW(outputwindow), "TimeTable Output");
-    // gtk_widget_show(outputwindow);
-    // outputcolumnview = gtk_list_store_new();
-    // gtk_column_view_append_column(outputcolumnview,gtk_column_view_column_new("Test",))
+    gtk_widget_show(outputwindow);
 
     g_print("Done.\n");
 }
