@@ -65,20 +65,6 @@ static void open_selector_dialog(GtkButton *button, gpointer data)
 static void solve_for_timetable(GtkButton *button, gpointer data)
 {
 
-    g_print(
-        "CoursesCSVFilePath: %s.\n"
-        "FacultyCSVFilePath: %s.\n"
-        "RoomsCSVFilePath: %s.\n"
-        "SectionsCSVFilePath: %s.\n"
-        "Number of Days per week %d.\n"
-        "Number of Slots Per Day: %d\n",
-        gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "coursescsvpathentry")))),
-        gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "facultycsvpathentry")))),
-        gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "roomscsvpathentry")))),
-        gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "sectionscsvpathentry")))),
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "daysperweekspinbutton"))),
-        gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "slotsperdayspinbutton"))));
-
     const char *CoursesCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "coursescsvpathentry"))));
     const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "facultycsvpathentry"))));
     const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"))));
