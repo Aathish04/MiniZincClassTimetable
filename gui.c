@@ -64,7 +64,6 @@ static void open_selector_dialog(GtkButton *button, gpointer data)
 
 static void solve_for_timetable(GtkButton *button, gpointer data)
 {
-
     const char *CoursesCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "coursescsvpathentry"))));
     const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "facultycsvpathentry"))));
     const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"))));
@@ -72,8 +71,8 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     char OutputJSONPath[] = "./InputData.json";
     char COMMAND[] = "minizinc main.mzn InputData.json --solver chuffed --json-stream --output-mode json";
 
-    int num_slots_per_day = 2;
-    int num_days_per_week = 2;
+    int num_slots_per_day = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "slotsperdayspinbutton")));
+    int num_days_per_week = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "daysperweekspinbutton")));
 
     g_print("Reading data from CSV Files... ");
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
