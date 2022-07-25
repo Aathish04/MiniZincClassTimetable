@@ -184,14 +184,23 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     GtkWidget *outputwindow;
 
-    GtkListStore *store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_BOOLEAN);
-    
+    int treeviewnum_cols = 2;
+    GType col_datatypes[treeviewnum_cols];
+    for(int i=0;i<treeviewnum_cols;i++){
+        col_datatypes[i] = G_TYPE_STRING;
+    }
+    GtkListStore *store = gtk_list_store_newv(treeviewnum_cols,col_datatypes);
+
     GtkTreeIter iter;
 
     gtk_list_store_append(store, &iter);  /* Acquire an iterator */
     gtk_list_store_set(store,&iter,0,"The Principle of Reason",-1);
-    gtk_list_store_set(store,&iter,1,1,-1);
-    
+    gtk_list_store_set(store,&iter,1,"1",-1);
+
+    gtk_list_store_append(store, &iter);  /* Acquire an iterator */
+    gtk_list_store_set(store,&iter,0,"The Brahmanda Purana",-1);
+    gtk_list_store_set(store,&iter,1,"2",-1);
+
     GtkWidget *tree;
     tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
 
