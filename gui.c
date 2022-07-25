@@ -10,6 +10,7 @@
 int int_value_in_array(int value, int array[], int arraylen);
 int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
 int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
+char *coursename_from_courseid(int courseid, int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 void fill_sectiondetailsarray(
     int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
     int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
@@ -185,6 +186,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     GtkWidget *outputwindow;
 
     char *DaysOfWeek[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    int teacherid = 0;
     int treeviewnum_cols = num_slots_per_day + 1;
 
     GType col_datatypes[treeviewnum_cols];
@@ -201,7 +203,15 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
         gtk_list_store_set(store, &iter, 0, DaysOfWeek[dayofweek], -1);
         for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
         {
-            gtk_list_store_set(store, &iter, treeviewcolnum, "UCS2276", -1);
+            gtk_list_store_set(
+                store, &iter, treeviewcolnum,
+                coursename_from_courseid(
+                    teacher_timetable_array[teacherid][dayofweek][treeviewcolnum - 1],
+                    coursescsv_numrecords,
+                    coursescsv_numcols,
+                    coursescsv_longestvaluelen + 1,
+                    coursescsv_raw_array),
+                -1);
         }
     }
 
@@ -212,7 +222,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     GtkTreeViewColumn *column;
     renderer = gtk_cell_renderer_text_new();
 
-    column = gtk_tree_view_column_new_with_attributes("Day", renderer, "text", 0, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Day\\Slot", renderer, "text", 0, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
     for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
     {
@@ -476,6 +486,18 @@ int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecord
         }
     }
     return unique_courses_array_index;
+}
+
+char *coursename_from_courseid(int courseid, int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size])
+{
+    for (int i = 0; i < coursescsv_numrecords; i++)
+    {
+        if (courseid == strtol(coursescsv_raw_array[i][0], NULL, 10))
+        {
+            return coursescsv_raw_array[i][1];
+        }
+    }
+    return coursescsv_raw_array[0][1];
 }
 
 void write_output_json_file(
