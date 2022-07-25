@@ -34,10 +34,10 @@ void call_minizinc_and_fill_timetable_arrays(
     int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
     int num_rooms, int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day]);
 
-const char coursescsvpath[] = "inputdata/Courses.csv";
-const char facultycsvpath[] = "inputdata/Faculty.csv";
-const char roomscsvpath[] = "inputdata/Rooms.csv";
-const char sectionscsvpath[] = "inputdata/Sections.csv";
+const char defaultcoursescsvpath[] = "inputdata/Courses.csv";
+const char defaultfacultycsvpath[] = "inputdata/Faculty.csv";
+const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
+const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
 
 static void on_filechooser_response(GtkNativeDialog *native, int response)
 {
@@ -212,7 +212,7 @@ static void activate(GtkApplication *app, gpointer user_data)
     solvebutton = gtk_button_new_with_label("Solve for Timetable");
 
     pathtextentry = gtk_entry_new();
-    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), coursescsvpath, -1);
+    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), defaultcoursescsvpath, -1);
     gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Courses CSV Path");
     gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
     gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 0, 1, 1);
@@ -224,7 +224,7 @@ static void activate(GtkApplication *app, gpointer user_data)
     g_object_set_data(G_OBJECT(solvebutton), "coursescsvpathentry", pathtextentry);
 
     pathtextentry = gtk_entry_new();
-    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), facultycsvpath, -1);
+    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), defaultfacultycsvpath, -1);
     gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Faculty CSV Path");
     gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
     gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 1, 1, 1);
@@ -236,7 +236,7 @@ static void activate(GtkApplication *app, gpointer user_data)
     gtk_grid_attach(GTK_GRID(grid), button, 1, 1, 1, 1);
 
     pathtextentry = gtk_entry_new();
-    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), sectionscsvpath, -1);
+    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), defaultsectionscsvpath, -1);
     gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Sections CSV Path");
     gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
     gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 2, 1, 1);
@@ -248,7 +248,7 @@ static void activate(GtkApplication *app, gpointer user_data)
     gtk_grid_attach(GTK_GRID(grid), button, 1, 2, 1, 1);
 
     pathtextentry = gtk_entry_new();
-    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), roomscsvpath, -1);
+    gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), defaultroomscsvpath, -1);
     gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Rooms CSV Path");
     gtk_editable_set_editable(GTK_EDITABLE(pathtextentry), 0);
     gtk_grid_attach(GTK_GRID(grid), pathtextentry, 0, 3, 1, 1);
