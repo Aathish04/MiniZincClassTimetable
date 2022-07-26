@@ -15,7 +15,7 @@ set of int:arr_num_sections = 1..num_sections;
 int:num_courses_per_section;
 set of int:arr_num_courses_per_section = 1..num_courses_per_section;
 
-array[arr_num_sections,arr_num_courses_per_section,1..3] of int: sectiondetails;
+array[arr_num_sections,arr_num_courses_per_section,1..4] of int: sectiondetails;
 
 
 set of int: facultyarray;
@@ -69,7 +69,7 @@ forall(sec in arr_num_sections, d in daysPerWeek, s in slotsPerDay)(
     if sectionTimetable[sec,d,s] > 0
     then
     forall(course in arr_num_courses_per_section)(
-        facultyTimetable[faculty_id_to_index(sectiondetails[sec,course,2]),d,s] == sectionTimetable[sec,d,s]
+        facultyTimetable[faculty_id_to_index(sectiondetails[sec,course,3]),d,s] == sectionTimetable[sec,d,s]
         )
     endif);
 
@@ -78,8 +78,8 @@ constraint
 forall(t in facultyindex, d in daysPerWeek, s in slotsPerDay)(
     forall(sec in arr_num_sections)(
         forall(course in arr_num_courses_per_section)(
-        if sectiondetails[sec,course,2] != facultyarray[t]
-        then facultyTimetable[t,d,s] != sectiondetails[sec,course,2]
+        if sectiondetails[sec,course,3] != facultyarray[t]
+        then facultyTimetable[t,d,s] != sectiondetails[sec,course,3]
         endif))
 );
 

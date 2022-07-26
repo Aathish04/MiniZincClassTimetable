@@ -12,8 +12,9 @@ int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sections
 int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
 char *coursename_from_courseid(int courseid, int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 char *facultyname_from_facultyid(int facultyid, int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
+char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int sectioncsv_numcols, int sectioncsv_data_size, char sectioncsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_data_size]);
 void fill_sectiondetailsarray(
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
+    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4],
     int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
     int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 void write_output_json_file(
@@ -99,7 +100,25 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     int max_num_courses_for_single_section = calc_max_num_courses_for_single_sec(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
     int num_unique_sections = calc_num_unique_sections(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
-    int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3];
+    // TODO: GET RID OF THIS WHEN YOU START USING FACULTY FOR EVERYTHING
+    int unique_sections_array[sectionscsv_numrecords];
+    int first_section_id = strtol(sectionscsv_raw_array[0][0], NULL, 10);
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        unique_sections_array[i] = first_section_id;
+    }
+    int unique_sections_array_index = 1;
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        int sectionid_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
+        if (!(int_value_in_array(sectionid_as_int, unique_sections_array, sectionscsv_numrecords)))
+        {
+            unique_sections_array[unique_sections_array_index++] = sectionid_as_int;
+        }
+    }
+    // END TODO
+
+    int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4];
 
     fill_sectiondetailsarray(
         num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
@@ -186,27 +205,52 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     GtkWidget *outputwindow;
     GtkWidget *outputwindowgrid;
-    GtkWidget *timetabletypeselectordropdown;
-    GtkWidget *timetableentityselectordropdown;
-    
+    GtkWidget *timetabletypeselectorcombobox;
+    GtkWidget *timetableentityselectorcombobox;
+
     outputwindowgrid = gtk_grid_new();
     char *DaysOfWeek[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-    int facultyid = 0;
+    int entityindex = 0;
 
-    const char *Timetabletypes[] = {"Professor", "Section", "Room", NULL};
-    timetabletypeselectordropdown = gtk_drop_down_new_from_strings(Timetabletypes);
-    gtk_drop_down_set_selected(GTK_DROP_DOWN(timetabletypeselectordropdown), 0);
-    int timetabletype = gtk_drop_down_get_selected(GTK_DROP_DOWN(timetabletypeselectordropdown));
-    const char *facultynames[num_unique_faculty + 1];
+    const char *Timetabletypes[] = {"Professor", "Section", "Room"};
+    timetabletypeselectorcombobox = gtk_combo_box_text_new();
+
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Faculty");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Section");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Room");
+
+    gtk_combo_box_set_active(GTK_COMBO_BOX(timetabletypeselectorcombobox), 0);
+    int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
+
+    timetableentityselectorcombobox = gtk_combo_box_text_new();
     if (timetabletype == 0)
     {
         for (int i = 0; i < num_unique_faculty; i++)
         {
-            facultynames[i] = facultyname_from_facultyid(unique_faculty_array[i], facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array);
+            gtk_combo_box_text_append_text(
+                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
+                facultyname_from_facultyid(unique_faculty_array[i], facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array));
         }
     }
-    facultynames[num_unique_faculty] = NULL;
-    timetableentityselectordropdown = gtk_drop_down_new_from_strings(facultynames);
+    else if (timetabletype == 1)
+    {
+        for (int i = 0; i < num_unique_sections; i++)
+        {
+            gtk_combo_box_text_append_text(
+                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
+                sectionname_from_sectionid(unique_sections_array[i], sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array));
+        }
+    }
+    else if (timetabletype == 2)
+    {
+        for (int i = 0; i < roomscsv_numrecords; i++)
+        {
+            gtk_combo_box_text_append_text(
+                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
+                g_strdup_printf("RoomID %i", i));
+        }
+    }
+    gtk_combo_box_set_active(GTK_COMBO_BOX(timetableentityselectorcombobox), 0);
     int treeviewnum_cols = num_slots_per_day + 1;
 
     GType col_datatypes[treeviewnum_cols];
@@ -226,7 +270,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
             gtk_list_store_set(
                 store, &iter, treeviewcolnum,
                 coursename_from_courseid(
-                    faculty_timetable_array[facultyid][dayofweek][treeviewcolnum - 1],
+                    faculty_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
                     coursescsv_numrecords,
                     coursescsv_numcols,
                     coursescsv_longestvaluelen + 1,
@@ -254,11 +298,9 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     gtk_window_set_title(GTK_WINDOW(outputwindow), "TimeTable Output");
     gtk_window_set_child(GTK_WINDOW(outputwindow), outputwindowgrid);
     gtk_grid_attach(GTK_GRID(outputwindowgrid), tree, 0, 0, 2, 1);
-    gtk_grid_attach(GTK_GRID(outputwindowgrid), timetabletypeselectordropdown, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(outputwindowgrid), timetableentityselectordropdown, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(outputwindowgrid), timetabletypeselectorcombobox, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(outputwindowgrid), timetableentityselectorcombobox, 1, 1, 1, 1);
     gtk_widget_show(outputwindow);
-
-    g_print("Done.\n");
 }
 
 static void activate(GtkApplication *app, gpointer user_data)
@@ -435,7 +477,7 @@ int int_value_in_array(int value, int array[], int arraylen)
 }
 
 void fill_sectiondetailsarray(
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
+    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4],
     int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
     int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size])
 {
@@ -446,6 +488,7 @@ void fill_sectiondetailsarray(
             sectiondetailsarray[i][j][0] = -1;
             sectiondetailsarray[i][j][1] = -1;
             sectiondetailsarray[i][j][2] = -1;
+            sectiondetailsarray[i][j][3] = -1;
         }
     }
 
@@ -467,9 +510,10 @@ void fill_sectiondetailsarray(
                 break;
             }
         }
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][0] = strtol(sectionscsv_raw_array[i][4], NULL, 10);
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter++][2] = strtol(coursescsv_raw_array[j][4], NULL, 10);
+        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][0] = current_section_id;
+        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][4], NULL, 10);
+        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][2] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
+        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter++][3] = strtol(coursescsv_raw_array[j][4], NULL, 10);
     }
 }
 
@@ -533,6 +577,18 @@ char *facultyname_from_facultyid(int facultyid, int facultycsv_numrecords, int f
         }
     }
     return "Unknown Professor";
+}
+
+char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int sectioncsv_numcols, int sectioncsv_data_size, char sectioncsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_data_size])
+{
+    for (int i = 0; i < sectioncsv_numrecords; i++)
+    {
+        if (sectionid == strtol(sectioncsv_raw_array[i][0], NULL, 10))
+        {
+            return g_strdup_printf("%s %s Sem %s", sectioncsv_raw_array[i][2], sectioncsv_raw_array[i][3], sectioncsv_raw_array[i][1]);
+        }
+    }
+    return "Unknown Section";
 }
 
 void write_output_json_file(
