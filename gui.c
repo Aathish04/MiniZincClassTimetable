@@ -546,10 +546,6 @@ static void activate(GtkApplication *app, gpointer user_data)
     g_signal_connect(solvebutton, "clicked", G_CALLBACK(solve_for_timetable), NULL);
     gtk_grid_attach(GTK_GRID(grid), solvebutton, 0, 6, 2, 1);
 
-    button = gtk_button_new_with_label("Quit");
-    g_signal_connect_swapped(button, "clicked", G_CALLBACK(gtk_window_destroy), window);
-    gtk_grid_attach(GTK_GRID(grid), button, 0, 7, 2, 1);
-
     gtk_widget_show(window);
 }
 
