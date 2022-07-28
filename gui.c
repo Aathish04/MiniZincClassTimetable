@@ -65,23 +65,56 @@ static void open_selector_dialog(GtkButton *button, gpointer data)
     gtk_native_dialog_show(GTK_NATIVE_DIALOG(dialog));
 }
 
-static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorcombobox, gpointer data){
+static void set_entity_model_for_treeview(GtkComboBoxText *timetableentityselectorcombobox, gpointer data)
+{
+    g_print("Entering set_entity_model_for_treeview\n");
+    GtkComboBoxText *timetabletypeselectorcombobox = data;
+    int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
+    int entityindex = gtk_combo_box_get_active(GTK_COMBO_BOX(timetableentityselectorcombobox));
+    GtkTreeView *tree = g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "tree");
+    GPtrArray *entityliststorearray;
+    if (timetabletype == 0)
+    {
+        entityliststorearray = g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "facu_timetable_store_array");
+    }
+    else if (timetabletype == 1)
+    {
+        entityliststorearray = g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "sect_timetable_store_array");
+    }
+    else
+    {
+        entityliststorearray = g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "room_timetable_store_array");
+    }
+    GtkListStore *store = g_ptr_array_index(entityliststorearray, entityindex);
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(store));
+    g_print("Leaving set_entity_model_for_treeview\n\n");
+}
+static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorcombobox, gpointer data)
+{
+    g_print("Entering Set EntitySelectorEntities.\n");
     GtkComboBoxText *timetableentityselectorcombobox = data;
-    int num_unique_faculty = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_faculty"));
-    int facultycsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numrecords"));
-    int facultycsv_numcols = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numcols"));
-    int facultycsv_longestvaluelen = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_longestvaluelen"));
-    int num_unique_sections = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_sections"));
-    int sectionscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numrecords"));
-    int sectionscsv_numcols = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numcols"));
-    int sectionscsv_longestvaluelen = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_longestvaluelen"));
-    int roomscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "roomscsv_numrecords"));
-    const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsvpathentry"))));
-    const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsvpathentry"))));
+    // This function (self) changes the value of timetableentityselectorcombobox.
+    // To avoid triggering a callback to set_entity_model_for_treeview before we set the entities
+    // and causing a segfault by reading memory that isn't there we disconnect the signal handlers 
+    // to set_entity_model_for_treeview for timetableentityselectorcombobox and reconnect them at the end of this function.
+
+    g_signal_handlers_disconnect_by_func(timetableentityselectorcombobox, G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+
+    int num_unique_faculty = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_faculty"));
+    int facultycsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numrecords"));
+    int facultycsv_numcols = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numcols"));
+    int facultycsv_longestvaluelen = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_longestvaluelen"));
+    int num_unique_sections = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_sections"));
+    int sectionscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numrecords"));
+    int sectionscsv_numcols = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numcols"));
+    int sectionscsv_longestvaluelen = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_longestvaluelen"));
+    int roomscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "roomscsv_numrecords"));
+    const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "facultycsvpathentry"))));
+    const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsvpathentry"))));
     int unique_faculty_array[num_unique_faculty];
-    char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_longestvaluelen+1];
-    char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_longestvaluelen+1];
-    
+    char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_longestvaluelen + 1];
+    char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_longestvaluelen + 1];
+
     fill_csv_raw_array(FacultyCSVPath, ',', '\n', '#', facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array);
     fill_csv_raw_array(SectionsCSVPath, ',', '\n', '#', sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
     fill_unique_facultyarray_return_num_unique_faculty(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_faculty_array);
@@ -102,9 +135,6 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
         }
     }
     // END TODO
-
-    
-
     int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
 
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox));
@@ -137,7 +167,9 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
         }
     }
     gtk_combo_box_set_active(GTK_COMBO_BOX(timetableentityselectorcombobox), 0);
-    
+    g_signal_connect(timetableentityselectorcombobox, "realize", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+    g_signal_connect(timetableentityselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+    g_print("Leaving Set EntitySelectorEntities.\n\n");
 }
 
 static void solve_for_timetable(GtkButton *button, gpointer data)
@@ -270,7 +302,6 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     char *DaysOfWeek[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
     int entityindex = 0;
 
-    const char *Timetabletypes[] = {"Professor", "Section", "Room"};
     timetabletypeselectorcombobox = gtk_combo_box_text_new();
 
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Faculty");
@@ -279,18 +310,20 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(timetabletypeselectorcombobox), 0);
 
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_faculty",GINT_TO_POINTER(num_unique_faculty));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numrecords", GINT_TO_POINTER(facultycsv_numrecords));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numcols", GINT_TO_POINTER(facultycsv_numcols));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_longestvaluelen", GINT_TO_POINTER(facultycsv_longestvaluelen));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_sections", GINT_TO_POINTER(num_unique_sections));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numrecords", GINT_TO_POINTER(sectionscsv_numrecords));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numcols", GINT_TO_POINTER(sectionscsv_numcols));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_longestvaluelen", GINT_TO_POINTER(sectionscsv_longestvaluelen));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "roomscsv_numrecords", GINT_TO_POINTER(roomscsv_numrecords));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsvpathentry", g_object_get_data(G_OBJECT(button), "facultycsvpathentry"));
-    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsvpathentry", g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"));
     timetableentityselectorcombobox = gtk_combo_box_text_new();
+
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_faculty", GINT_TO_POINTER(num_unique_faculty));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numrecords", GINT_TO_POINTER(facultycsv_numrecords));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numcols", GINT_TO_POINTER(facultycsv_numcols));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_longestvaluelen", GINT_TO_POINTER(facultycsv_longestvaluelen));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_sections", GINT_TO_POINTER(num_unique_sections));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numrecords", GINT_TO_POINTER(sectionscsv_numrecords));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numcols", GINT_TO_POINTER(sectionscsv_numcols));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_longestvaluelen", GINT_TO_POINTER(sectionscsv_longestvaluelen));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "roomscsv_numrecords", GINT_TO_POINTER(roomscsv_numrecords));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsvpathentry", g_object_get_data(G_OBJECT(button), "facultycsvpathentry"));
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsvpathentry", g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"));
+
     g_signal_connect(timetabletypeselectorcombobox, "realize", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
     g_signal_connect(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
 
@@ -301,30 +334,101 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     {
         col_datatypes[i] = G_TYPE_STRING;
     }
-    GtkListStore *store = gtk_list_store_newv(treeviewnum_cols, col_datatypes);
 
-    GtkTreeIter iter;
-    for (int dayofweek = 0; dayofweek < num_days_per_week; dayofweek++)
+    GPtrArray *facu_timetable_store_array = g_ptr_array_new();
+    GPtrArray *sect_timetable_store_array = g_ptr_array_new();
+    GPtrArray *room_timetable_store_array = g_ptr_array_new();
+    for (int timetabletype = 0; timetabletype < 3; timetabletype++)
     {
-        gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 0, DaysOfWeek[dayofweek], -1);
-        for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+        int num_entities;
+        if (timetabletype == 0)
         {
-            gtk_list_store_set(
-                store, &iter, treeviewcolnum,
-                coursename_from_courseid(
-                    faculty_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
-                    coursescsv_numrecords,
-                    coursescsv_numcols,
-                    coursescsv_longestvaluelen + 1,
-                    coursescsv_raw_array),
-                -1);
+            num_entities = num_unique_faculty;
+        }
+        else if (timetabletype == 1)
+        {
+            num_entities = num_unique_sections;
+        }
+        else
+        {
+            num_entities = roomscsv_numrecords;
+        }
+
+        for (int entityindex = 0; entityindex < num_entities; entityindex++)
+        {
+            GtkListStore *store = gtk_list_store_newv(treeviewnum_cols, col_datatypes);
+            GtkTreeIter iter;
+            for (int dayofweek = 0; dayofweek < num_days_per_week; dayofweek++)
+            {
+                gtk_list_store_append(store, &iter);
+                gtk_list_store_set(store, &iter, 0, DaysOfWeek[dayofweek], -1);
+                for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+                {
+                    if (timetabletype == 0)
+                    {
+                        gtk_list_store_set(
+                            store, &iter, treeviewcolnum,
+                            coursename_from_courseid(
+                                faculty_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
+                                coursescsv_numrecords,
+                                coursescsv_numcols,
+                                coursescsv_longestvaluelen + 1,
+                                coursescsv_raw_array),
+                            -1);
+                    }
+                    else if (timetabletype == 1)
+                    {
+                        gtk_list_store_set(
+                            store, &iter, treeviewcolnum,
+                            coursename_from_courseid(
+                                section_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
+                                coursescsv_numrecords,
+                                coursescsv_numcols,
+                                coursescsv_longestvaluelen + 1,
+                                coursescsv_raw_array),
+                            -1);
+                    }
+                    else
+                    {
+                        gtk_list_store_set(
+                            store, &iter, treeviewcolnum,
+                            coursename_from_courseid(
+                                room_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
+                                coursescsv_numrecords,
+                                coursescsv_numcols,
+                                coursescsv_longestvaluelen + 1,
+                                coursescsv_raw_array),
+                            -1);
+                    }
+                }
+            }
+            if (timetabletype == 0)
+            {
+                g_ptr_array_add(facu_timetable_store_array, store);
+            }
+            else if (timetabletype == 1)
+            {
+                g_ptr_array_add(sect_timetable_store_array, store);
+            }
+            else
+            {
+                g_ptr_array_add(room_timetable_store_array, store);
+            }
         }
     }
 
     GtkWidget *tree;
-    tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+    tree = gtk_tree_view_new();
 
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facu_timetable_store_array", facu_timetable_store_array);
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sect_timetable_store_array", sect_timetable_store_array);
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "room_timetable_store_array", room_timetable_store_array);
+    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "tree", tree);
+
+    g_signal_connect(timetableentityselectorcombobox, "realize", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+    g_signal_connect(timetableentityselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+
+    g_signal_connect_swapped(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetableentityselectorcombobox);
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
     renderer = gtk_cell_renderer_text_new();
