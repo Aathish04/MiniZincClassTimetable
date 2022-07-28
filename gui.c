@@ -65,6 +65,81 @@ static void open_selector_dialog(GtkButton *button, gpointer data)
     gtk_native_dialog_show(GTK_NATIVE_DIALOG(dialog));
 }
 
+static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorcombobox, gpointer data){
+    GtkComboBoxText *timetableentityselectorcombobox = data;
+    int num_unique_faculty = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_faculty"));
+    int facultycsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numrecords"));
+    int facultycsv_numcols = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numcols"));
+    int facultycsv_longestvaluelen = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_longestvaluelen"));
+    int num_unique_sections = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_sections"));
+    int sectionscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numrecords"));
+    int sectionscsv_numcols = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numcols"));
+    int sectionscsv_longestvaluelen = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_longestvaluelen"));
+    int roomscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "roomscsv_numrecords"));
+    const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsvpathentry"))));
+    const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsvpathentry"))));
+    int unique_faculty_array[num_unique_faculty];
+    char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_longestvaluelen+1];
+    char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_longestvaluelen+1];
+    
+    fill_csv_raw_array(FacultyCSVPath, ',', '\n', '#', facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array);
+    fill_csv_raw_array(SectionsCSVPath, ',', '\n', '#', sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
+    fill_unique_facultyarray_return_num_unique_faculty(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_faculty_array);
+    // TODO: GET RID OF THIS WHEN YOU START USING FACULTY FOR EVERYTHING
+    int unique_sections_array[sectionscsv_numrecords];
+    int first_section_id = strtol(sectionscsv_raw_array[0][0], NULL, 10);
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        unique_sections_array[i] = first_section_id;
+    }
+    int unique_sections_array_index = 1;
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        int sectionid_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
+        if (!(int_value_in_array(sectionid_as_int, unique_sections_array, sectionscsv_numrecords)))
+        {
+            unique_sections_array[unique_sections_array_index++] = sectionid_as_int;
+        }
+    }
+    // END TODO
+
+    
+
+    int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
+
+    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox));
+
+    if (timetabletype == 0)
+    {
+        for (int i = 0; i < num_unique_faculty; i++)
+        {
+            gtk_combo_box_text_append_text(
+                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
+                facultyname_from_facultyid(unique_faculty_array[i], facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array));
+        }
+    }
+    else if (timetabletype == 1)
+    {
+        for (int i = 0; i < num_unique_sections; i++)
+        {
+            gtk_combo_box_text_append_text(
+                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
+                sectionname_from_sectionid(unique_sections_array[i], sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array));
+        }
+    }
+    else if (timetabletype == 2)
+    {
+        for (int i = 0; i < roomscsv_numrecords; i++)
+        {
+            gtk_combo_box_text_append_text(
+                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
+                g_strdup_printf("RoomID %i", i));
+        }
+    }
+    gtk_combo_box_set_active(GTK_COMBO_BOX(timetableentityselectorcombobox), 0);
+    
+}
+
 static void solve_for_timetable(GtkButton *button, gpointer data)
 {
     const char *CoursesCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "coursescsvpathentry"))));
@@ -100,23 +175,6 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     int max_num_courses_for_single_section = calc_max_num_courses_for_single_sec(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
     int num_unique_sections = calc_num_unique_sections(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
-    // TODO: GET RID OF THIS WHEN YOU START USING FACULTY FOR EVERYTHING
-    int unique_sections_array[sectionscsv_numrecords];
-    int first_section_id = strtol(sectionscsv_raw_array[0][0], NULL, 10);
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        unique_sections_array[i] = first_section_id;
-    }
-    int unique_sections_array_index = 1;
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        int sectionid_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
-        if (!(int_value_in_array(sectionid_as_int, unique_sections_array, sectionscsv_numrecords)))
-        {
-            unique_sections_array[unique_sections_array_index++] = sectionid_as_int;
-        }
-    }
-    // END TODO
 
     int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4];
 
@@ -220,37 +278,22 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Room");
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(timetabletypeselectorcombobox), 0);
-    int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
 
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_faculty",GINT_TO_POINTER(num_unique_faculty));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numrecords", GINT_TO_POINTER(facultycsv_numrecords));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_numcols", GINT_TO_POINTER(facultycsv_numcols));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsv_longestvaluelen", GINT_TO_POINTER(facultycsv_longestvaluelen));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "num_unique_sections", GINT_TO_POINTER(num_unique_sections));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numrecords", GINT_TO_POINTER(sectionscsv_numrecords));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_numcols", GINT_TO_POINTER(sectionscsv_numcols));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsv_longestvaluelen", GINT_TO_POINTER(sectionscsv_longestvaluelen));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "roomscsv_numrecords", GINT_TO_POINTER(roomscsv_numrecords));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "facultycsvpathentry", g_object_get_data(G_OBJECT(button), "facultycsvpathentry"));
+    g_object_set_data(G_OBJECT(timetabletypeselectorcombobox), "sectionscsvpathentry", g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"));
     timetableentityselectorcombobox = gtk_combo_box_text_new();
-    if (timetabletype == 0)
-    {
-        for (int i = 0; i < num_unique_faculty; i++)
-        {
-            gtk_combo_box_text_append_text(
-                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
-                facultyname_from_facultyid(unique_faculty_array[i], facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array));
-        }
-    }
-    else if (timetabletype == 1)
-    {
-        for (int i = 0; i < num_unique_sections; i++)
-        {
-            gtk_combo_box_text_append_text(
-                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
-                sectionname_from_sectionid(unique_sections_array[i], sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array));
-        }
-    }
-    else if (timetabletype == 2)
-    {
-        for (int i = 0; i < roomscsv_numrecords; i++)
-        {
-            gtk_combo_box_text_append_text(
-                GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
-                g_strdup_printf("RoomID %i", i));
-        }
-    }
-    gtk_combo_box_set_active(GTK_COMBO_BOX(timetableentityselectorcombobox), 0);
+    g_signal_connect(timetabletypeselectorcombobox, "realize", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
+    g_signal_connect(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
+
     int treeviewnum_cols = num_slots_per_day + 1;
 
     GType col_datatypes[treeviewnum_cols];
