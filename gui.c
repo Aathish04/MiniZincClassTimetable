@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "lib/csv.h"
-#include "lib/jsmn/jsmn.h"
+#include "lib/ext/jsmn/jsmn.h"
 
 int int_value_in_array(int value, int array[], int arraylen);
 int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
