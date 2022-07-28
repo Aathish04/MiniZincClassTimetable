@@ -1,1 +1,1 @@
-{"sectiondetails": [[[0, 1, 4, 0]], [[1, 1, 8, 0]]],"facultyarray": [4,8],"coursesarray": [0,1],"rooms": [0],"slots":2,"days":2,"num_courses_per_section":1,"num_sections":2,"num_faculty":2}
+{"facultydetails": [[[4, 0, 1, 0]], [[8, 1, 1, 0]]],"sectionids_array": [0,1],"coursesarray": [0,1],"rooms": [0],"slots":6,"days":2,"max_num_diff_classes_per_week_for_single_fac":1,"num_faculty":2,"num_sections":2}

@@ -8,28 +8,25 @@
 #include "lib/ext/jsmn/jsmn.h"
 
 int int_value_in_array(int value, int array[], int arraylen);
-int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
+int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
 int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
 char *coursename_from_courseid(int courseid, int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 char *facultyname_from_facultyid(int facultyid, int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
 char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int sectioncsv_numcols, int sectioncsv_data_size, char sectioncsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_data_size]);
-void fill_sectiondetailsarray(
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4],
-    int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
+void fill_facultydetails_array(
+    int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][4],
+    int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size],
     int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 void write_output_json_file(
-    char OutputJSONPath[],
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
-    int num_unique_faculty, int unique_faculty_array[],
-    int num_unique_courses, int unique_courses_array[],
-    int num_slots_per_day,
-    int num_days_per_week,
-    int num_courses_per_section,
-    int num_sections,
-    int num_rooms, int roomsarray[],
-    int num_faculty);
+    char *OutputJSONPath,
+    int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][4],
+    int num_unique_sections, int unique_sectionids_array[num_unique_sections],
+    int num_unique_courses, int unique_courses_array[num_unique_courses],
+    int roomscsv_numrecords, int rooms_array[roomscsv_numrecords],
+    int num_slots_per_day, int num_days_per_week);
 int fill_unique_facultyarray_return_num_unique_faculty(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_faculty_array[facultycsv_numrecords]);
-int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_courses_array[sectionscsv_numrecords]);
+int fill_unique_coursesarray_return_num_unique_courses(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_courses_array[facultycsv_numrecords]);
+int fill_unique_sectionid_array_return_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size], int unique_sectionids_array[sectionscsv_numrecords]);
 
 void call_minizinc_and_fill_timetable_arrays(
     char COMMAND[], int num_slots_per_day, int num_days_per_week,
@@ -95,7 +92,7 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
     GtkComboBoxText *timetableentityselectorcombobox = data;
     // This function (self) changes the value of timetableentityselectorcombobox.
     // To avoid triggering a callback to set_entity_model_for_treeview before we set the entities
-    // and causing a segfault by reading memory that isn't there we disconnect the signal handlers 
+    // and causing a segfault by reading memory that isn't there we disconnect the signal handlers
     // to set_entity_model_for_treeview for timetableentityselectorcombobox and reconnect them at the end of this function.
 
     g_signal_handlers_disconnect_by_func(timetableentityselectorcombobox, G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
@@ -111,30 +108,17 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
     int roomscsv_numrecords = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "roomscsv_numrecords"));
     const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "facultycsvpathentry"))));
     const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsvpathentry"))));
-    int unique_faculty_array[num_unique_faculty];
     char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_longestvaluelen + 1];
     char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_longestvaluelen + 1];
 
     fill_csv_raw_array(FacultyCSVPath, ',', '\n', '#', facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array);
     fill_csv_raw_array(SectionsCSVPath, ',', '\n', '#', sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
+
+    int unique_sectionids_array[num_unique_sections];
+    fill_unique_sectionid_array_return_num_unique_sections(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_sectionids_array);
+    int unique_faculty_array[num_unique_faculty];
     fill_unique_facultyarray_return_num_unique_faculty(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_faculty_array);
-    // TODO: GET RID OF THIS WHEN YOU START USING FACULTY FOR EVERYTHING
-    int unique_sections_array[sectionscsv_numrecords];
-    int first_section_id = strtol(sectionscsv_raw_array[0][0], NULL, 10);
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        unique_sections_array[i] = first_section_id;
-    }
-    int unique_sections_array_index = 1;
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        int sectionid_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
-        if (!(int_value_in_array(sectionid_as_int, unique_sections_array, sectionscsv_numrecords)))
-        {
-            unique_sections_array[unique_sections_array_index++] = sectionid_as_int;
-        }
-    }
-    // END TODO
+
     int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
 
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox));
@@ -154,7 +138,7 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
         {
             gtk_combo_box_text_append_text(
                 GTK_COMBO_BOX_TEXT(timetableentityselectorcombobox),
-                sectionname_from_sectionid(unique_sections_array[i], sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array));
+                sectionname_from_sectionid(unique_sectionids_array[i], sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array));
         }
     }
     else if (timetabletype == 2)
@@ -205,21 +189,24 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     char roomscsv_raw_array[roomscsv_numrecords][roomscsv_numcols][roomscsv_longestvaluelen + 1];
     fill_csv_raw_array(RoomsCSVPath, ',', '\n', '#', roomscsv_numrecords, roomscsv_numcols, roomscsv_longestvaluelen + 1, roomscsv_raw_array);
 
-    int max_num_courses_for_single_section = calc_max_num_courses_for_single_sec(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
-    int num_unique_sections = calc_num_unique_sections(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
+    int max_num_diff_classes_per_week_for_single_fac = calc_max_num_diff_classes_per_week_for_single_fac(
+        facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array);
+    int unique_faculty_array[facultycsv_numrecords];
+    int num_unique_faculty = fill_unique_facultyarray_return_num_unique_faculty(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_faculty_array);
+    int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][4];
 
-    int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4];
-
-    fill_sectiondetailsarray(
-        num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
-        sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array,
+    fill_facultydetails_array(
+        num_unique_faculty, max_num_diff_classes_per_week_for_single_fac, facultydetails_array,
+        facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array,
         coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen + 1, coursescsv_raw_array);
 
-    int unique_faculty_array[sectionscsv_numrecords];
-    int num_unique_faculty = fill_unique_facultyarray_return_num_unique_faculty(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_faculty_array);
+    int unique_sectionids_array[sectionscsv_numrecords];
+    int num_unique_sections = fill_unique_sectionid_array_return_num_unique_sections(
+        sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1,
+        sectionscsv_raw_array, unique_sectionids_array);
 
     int unique_courses_array[sectionscsv_numrecords];
-    int num_unique_courses = fill_unique_coursesarray_return_num_unique_courses(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_courses_array);
+    int num_unique_courses = fill_unique_coursesarray_return_num_unique_courses(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_courses_array);
 
     int rooms_array[roomscsv_numrecords];
     for (int i = 0; i < roomscsv_numrecords; i++)
@@ -229,13 +216,13 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     g_print("Done.\n");
 
     g_print("Writing Data to JSON file... ");
-    // write_output_json_file(
-    //     OutputJSONPath,
-    //     num_unique_sections, max_num_courses_for_single_section, sectiondetailsarray,
-    //     num_unique_faculty, unique_faculty_array,
-    //     num_unique_courses, unique_courses_array,
-    //     num_slots_per_day, num_days_per_week, max_num_courses_for_single_section, num_unique_sections,
-    //     roomscsv_numrecords, rooms_array, num_unique_faculty);
+    write_output_json_file(
+        OutputJSONPath,
+        num_unique_faculty, max_num_diff_classes_per_week_for_single_fac, facultydetails_array,
+        num_unique_sections, unique_sectionids_array,
+        num_unique_courses, unique_courses_array,
+        roomscsv_numrecords, rooms_array,
+        num_slots_per_day, num_days_per_week);
     g_print("Done.\n");
 
     int faculty_timetable_array[num_unique_faculty][num_days_per_week][num_slots_per_day];
@@ -587,6 +574,31 @@ int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sections
     return max_num_courses_for_single_sec;
 }
 
+int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size])
+{
+    int max_num_classes_for_single_fac = 0;
+    int num_classes_for_single_fac = 0;
+    int current_fac_id = -1;
+    for (int i = 0; i < facultycsv_numrecords; i++)
+    {
+        int fac_id_as_int = strtol(facultycsv_raw_array[i][0], NULL, 10);
+        if (fac_id_as_int != current_fac_id)
+        {
+            if (max_num_classes_for_single_fac < num_classes_for_single_fac)
+            {
+                max_num_classes_for_single_fac = num_classes_for_single_fac;
+            }
+            current_fac_id = fac_id_as_int;
+            num_classes_for_single_fac = 1;
+        }
+        else
+        {
+            num_classes_for_single_fac++;
+        }
+    }
+    return max_num_classes_for_single_fac;
+}
+
 int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size])
 {
     int unique_sections_array[sectionscsv_numrecords];
@@ -619,44 +631,47 @@ int int_value_in_array(int value, int array[], int arraylen)
     return 0;
 }
 
-void fill_sectiondetailsarray(
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][4],
-    int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size],
+void fill_facultydetails_array(
+    int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][4],
+    int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size],
     int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size])
 {
-    for (int i = 0; i < num_unique_sections; i++)
+    for (int i = 0; i < num_unique_faculty; i++)
     {
-        for (int j = 0; j < max_num_courses_for_single_section; j++)
+        for (int j = 0; j < max_num_diff_classes_per_week_for_single_fac; j++)
         {
-            sectiondetailsarray[i][j][0] = -1;
-            sectiondetailsarray[i][j][1] = -1;
-            sectiondetailsarray[i][j][2] = -1;
-            sectiondetailsarray[i][j][3] = -1;
+            facultydetails_array[i][j][0] = -1;
+            facultydetails_array[i][j][1] = -1;
+            facultydetails_array[i][j][2] = -1;
+            facultydetails_array[i][j][3] = -1;
         }
     }
 
-    int current_section_id = -1;
-    int sectiondetailsarraysectioncounter = 0;
-    for (int i = 0; i < sectionscsv_numrecords; i++)
+    int current_fac_id = -1;
+    int facultydetails_arrayclasscounter = 0;
+    int facultydetails_arrayfacultycounter = -1;
+    for (int i = 0; i < facultycsv_numrecords; i++)
     {
         int j;
-        int section_id_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
-        if (current_section_id != section_id_as_int)
+        int faculty_id_as_int = strtol(facultycsv_raw_array[i][0], NULL, 10);
+        printf("FacultyID as int: %d", faculty_id_as_int);
+        if (current_fac_id != faculty_id_as_int)
         {
-            current_section_id = section_id_as_int;
-            sectiondetailsarraysectioncounter = 0;
+            current_fac_id = faculty_id_as_int;
+            facultydetails_arrayclasscounter = 0;
+            facultydetails_arrayfacultycounter++;
         }
         for (j = 0; j < coursescsv_numrecords; j++)
         {
-            if (strtol(sectionscsv_raw_array[i][4], NULL, 10) == strtol(coursescsv_raw_array[j][0], NULL, 10))
+            if (strtol(facultycsv_raw_array[i][4], NULL, 10) == strtol(coursescsv_raw_array[j][0], NULL, 10))
             {
                 break;
             }
         }
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][0] = current_section_id;
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][1] = strtol(sectionscsv_raw_array[i][4], NULL, 10);
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter][2] = strtol(sectionscsv_raw_array[i][5], NULL, 10);
-        sectiondetailsarray[section_id_as_int][sectiondetailsarraysectioncounter++][3] = strtol(coursescsv_raw_array[j][4], NULL, 10);
+        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter][0] = current_fac_id;
+        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter][1] = strtol(facultycsv_raw_array[i][3], NULL, 10);
+        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter][2] = strtol(facultycsv_raw_array[i][4], NULL, 10);
+        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter++][3] = strtol(coursescsv_raw_array[j][4], NULL, 10);
     }
 }
 
@@ -679,18 +694,37 @@ int fill_unique_facultyarray_return_num_unique_faculty(int facultycsv_numrecords
     return unique_faculty_array_index;
 }
 
-int fill_unique_coursesarray_return_num_unique_courses(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size], int unique_courses_array[sectionscsv_numrecords])
+int fill_unique_sectionid_array_return_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size], int unique_sectionids_array[sectionscsv_numrecords])
 {
-    int first_course_id = strtol(sectionscsv_raw_array[0][4], NULL, 10);
+    int first_section_id = strtol(sectionscsv_raw_array[0][0], NULL, 10);
     for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        unique_sectionids_array[i] = first_section_id;
+    }
+    int unique_sectionids_array_index = 1;
+    for (int i = 0; i < sectionscsv_numrecords; i++)
+    {
+        int sectionid_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
+        if (!(int_value_in_array(sectionid_as_int, unique_sectionids_array, sectionscsv_numrecords)))
+        {
+            unique_sectionids_array[unique_sectionids_array_index++] = sectionid_as_int;
+        }
+    }
+    return unique_sectionids_array_index;
+}
+
+int fill_unique_coursesarray_return_num_unique_courses(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_courses_array[facultycsv_numrecords])
+{
+    int first_course_id = strtol(facultycsv_raw_array[0][4], NULL, 10);
+    for (int i = 0; i < facultycsv_numrecords; i++)
     {
         unique_courses_array[i] = first_course_id;
     }
     int unique_courses_array_index = 1;
-    for (int i = 0; i < sectionscsv_numrecords; i++)
+    for (int i = 0; i < facultycsv_numrecords; i++)
     {
-        int courseid_as_int = strtol(sectionscsv_raw_array[i][4], NULL, 10);
-        if (!(int_value_in_array(courseid_as_int, unique_courses_array, sectionscsv_numrecords)))
+        int courseid_as_int = strtol(facultycsv_raw_array[i][4], NULL, 10);
+        if (!(int_value_in_array(courseid_as_int, unique_courses_array, facultycsv_numrecords)))
         {
             unique_courses_array[unique_courses_array_index++] = courseid_as_int;
         }
@@ -735,44 +769,40 @@ char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int s
 }
 
 void write_output_json_file(
-    char OutputJSONPath[],
-    int num_unique_sections, int max_num_courses_for_single_section, int sectiondetailsarray[num_unique_sections][max_num_courses_for_single_section][3],
-    int num_unique_faculty, int unique_faculty_array[],
+    char *OutputJSONPath,
+    int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][4],
+    int num_unique_sections, int unique_sectionids_array[],
     int num_unique_courses, int unique_courses_array[],
-    int num_slots_per_day,
-    int num_days_per_week,
-    int num_courses_per_section,
-    int num_sections,
-    int num_rooms, int roomsarray[],
-    int num_faculty)
+    int roomscsv_numrecords, int rooms_array[],
+    int num_slots_per_day, int num_days_per_week)
 {
     FILE *outputjsonfilepointer;
     outputjsonfilepointer = fopen(OutputJSONPath, "w");
     fprintf(outputjsonfilepointer, "{");
-    fprintf(outputjsonfilepointer, "\"sectiondetails\": [");
-    for (int i = 0; i < num_unique_sections; i++)
+    fprintf(outputjsonfilepointer, "\"facultydetails\": [");
+    for (int i = 0; i < num_unique_faculty; i++)
     {
         fprintf(outputjsonfilepointer, "[");
-        for (int j = 0; j < max_num_courses_for_single_section; j++)
+        for (int j = 0; j < max_num_diff_classes_per_week_for_single_fac; j++)
         {
-            fprintf(outputjsonfilepointer, "[%d, %d, %d]", sectiondetailsarray[i][j][0], sectiondetailsarray[i][j][1], sectiondetailsarray[i][j][2]);
-            if (j < max_num_courses_for_single_section - 1)
+            fprintf(outputjsonfilepointer, "[%d, %d, %d, %d]", facultydetails_array[i][j][0], facultydetails_array[i][j][1], facultydetails_array[i][j][2], facultydetails_array[i][j][3]);
+            if (j < max_num_diff_classes_per_week_for_single_fac - 1)
             {
                 fprintf(outputjsonfilepointer, ", ");
             }
         }
         fprintf(outputjsonfilepointer, "]");
-        if (i < num_unique_sections - 1)
+        if (i < num_unique_faculty - 1)
         {
             fprintf(outputjsonfilepointer, ", ");
         }
     }
     fprintf(outputjsonfilepointer, "],");
-    fprintf(outputjsonfilepointer, "\"facultyarray\": [");
-    for (int i = 0; i < num_unique_faculty; i++)
+    fprintf(outputjsonfilepointer, "\"sectionids_array\": [");
+    for (int i = 0; i < num_unique_sections; i++)
     {
-        fprintf(outputjsonfilepointer, "%d", unique_faculty_array[i]);
-        if (i < num_unique_faculty - 1)
+        fprintf(outputjsonfilepointer, "%d", unique_sectionids_array[i]);
+        if (i < num_unique_sections - 1)
         {
             fprintf(outputjsonfilepointer, ",");
         }
@@ -789,10 +819,10 @@ void write_output_json_file(
     }
     fprintf(outputjsonfilepointer, "],");
     fprintf(outputjsonfilepointer, "\"rooms\": [");
-    for (int i = 0; i < num_rooms; i++)
+    for (int i = 0; i < roomscsv_numrecords; i++)
     {
-        fprintf(outputjsonfilepointer, "%d", roomsarray[i]);
-        if (i < num_rooms - 1)
+        fprintf(outputjsonfilepointer, "%d", rooms_array[i]);
+        if (i < roomscsv_numrecords - 1)
         {
             fprintf(outputjsonfilepointer, ",");
         }
@@ -800,11 +830,12 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "],");
     fprintf(outputjsonfilepointer, "\"slots\":%d,", num_slots_per_day);
     fprintf(outputjsonfilepointer, "\"days\":%d,", num_days_per_week);
-    fprintf(outputjsonfilepointer, "\"num_courses_per_section\":%d,", num_courses_per_section);
-    fprintf(outputjsonfilepointer, "\"num_sections\":%d,", num_sections);
-    fprintf(outputjsonfilepointer, "\"num_faculty\":%d", num_faculty);
+    fprintf(outputjsonfilepointer, "\"max_num_diff_classes_per_week_for_single_fac\":%d,", max_num_diff_classes_per_week_for_single_fac);
+    fprintf(outputjsonfilepointer, "\"num_faculty\":%d,", num_unique_faculty);
+    fprintf(outputjsonfilepointer, "\"num_sections\":%d", num_unique_sections);
     fprintf(outputjsonfilepointer, "}");
     fclose(outputjsonfilepointer);
+    // exit(1);
 }
 
 void call_minizinc_and_fill_timetable_arrays(
