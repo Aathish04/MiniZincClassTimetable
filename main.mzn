@@ -10,33 +10,32 @@ set of int: daysPerWeek = 1..days;
 int:slots;
 set of int: slotsPerDay = 1..slots;
 
-int:num_sections;
-set of int:arr_num_sections = 1..num_sections;
-int:num_courses_per_section;
-set of int:arr_num_courses_per_section = 1..num_courses_per_section;
-
-array[arr_num_sections,arr_num_courses_per_section,1..4] of int: sectiondetails;
-
-
-set of int: facultyarray;
 int: num_faculty;
-set of int: facultyindex = 1..num_faculty;
+set of int:faculty_index_arr = 1..num_faculty;
+array[faculty_index_arr] of int : facultyids_array;
+
+int : max_num_diff_classes_per_week_for_single_fac;
+set of int:classes_per_week_for_single_fac_index_arr = 1..max_num_diff_classes_per_week_for_single_fac;
+
+array[faculty_index_arr,classes_per_week_for_single_fac_index_arr,1..5] of int: facultydetails;
+
+int:num_sections;
+set of int:sections_index_arr = 1..num_sections;
+
 set of int: rooms;
 int:num_rooms = length(rooms);
 set of int: coursesarray;
 
-int: hours_per_week = 3;
-
 % Final Output Timetable Arrays
-array[facultyindex,daysPerWeek,slotsPerDay] of var coursesarray: facultyTimetable;
-array[arr_num_sections,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
+array[faculty_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: facultyTimetable;
+array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
 array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomTimetable;
 
 function int: faculty_id_to_index(int:facultyid) = 
-   sum(  [ if facultyid = facultyarray[i] 
+   sum(  [ if facultyid = facultyids_array[i] 
               then i
            else 0 endif  
-          | i in index_set(facultyarray) ]
+          | i in index_set(facultyids_array) ]
    );
 
 % Rules
@@ -45,7 +44,7 @@ function int: faculty_id_to_index(int:facultyid) =
 constraint 
 forall(d in daysPerWeek,s in slotsPerDay)
     (
-           sum(t in facultyindex)
+           sum(t in faculty_index_arr)
            (if facultyTimetable[t,d,s]!=0 
                then 1 
                else 0 
@@ -54,7 +53,7 @@ forall(d in daysPerWeek,s in slotsPerDay)
 
 % limiting number of hours per day for faculty
 constraint 
-forall(d in daysPerWeek,t in facultyindex)
+forall(d in daysPerWeek,t in faculty_index_arr)
     (
         sum(s in slotsPerDay)
            (if facultyTimetable[t,d,s]!=0 
@@ -63,29 +62,9 @@ forall(d in daysPerWeek,t in facultyindex)
            endif) < 4
     );
 
-% Course-Section-Professor Constraint
-constraint
-forall(sec in arr_num_sections, d in daysPerWeek, s in slotsPerDay)(
-    if sectionTimetable[sec,d,s] > 0
-    then
-    forall(course in arr_num_courses_per_section)(
-        facultyTimetable[faculty_id_to_index(sectiondetails[sec,course,3]),d,s] == sectionTimetable[sec,d,s]
-        )
-    endif);
-
-% Faculty - FacultySubject Constraint
-constraint
-forall(t in facultyindex, d in daysPerWeek, s in slotsPerDay)(
-    forall(sec in arr_num_sections)(
-        forall(course in arr_num_courses_per_section)(
-        if sectiondetails[sec,course,3] != facultyarray[t]
-        then facultyTimetable[t,d,s] != sectiondetails[sec,course,3]
-        endif))
-);
-
 % Faculty Occupancy Constraint
 constraint 
-forall(d in daysPerWeek,t in facultyindex)
+forall(d in daysPerWeek,t in faculty_index_arr)
     (
         sum(s in slotsPerDay)
            (if facultyTimetable[t,d,s]!=0 
