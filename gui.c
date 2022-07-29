@@ -68,7 +68,6 @@ static void open_selector_dialog(GtkButton *button, gpointer data)
 
 static void set_entity_model_for_treeview(GtkComboBoxText *timetableentityselectorcombobox, gpointer data)
 {
-    g_print("Entering set_entity_model_for_treeview\n");
     GtkComboBoxText *timetabletypeselectorcombobox = data;
     int timetabletype = gtk_combo_box_get_active(GTK_COMBO_BOX(timetabletypeselectorcombobox));
     int entityindex = gtk_combo_box_get_active(GTK_COMBO_BOX(timetableentityselectorcombobox));
@@ -88,11 +87,9 @@ static void set_entity_model_for_treeview(GtkComboBoxText *timetableentityselect
     }
     GtkListStore *store = g_ptr_array_index(entityliststorearray, entityindex);
     gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(store));
-    g_print("Leaving set_entity_model_for_treeview\n\n");
 }
 static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorcombobox, gpointer data)
 {
-    g_print("Entering Set EntitySelectorEntities.\n");
     GtkComboBoxText *timetableentityselectorcombobox = data;
     // This function (self) changes the value of timetableentityselectorcombobox.
     // To avoid triggering a callback to set_entity_model_for_treeview before we set the entities
@@ -157,7 +154,6 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
     gtk_combo_box_set_active(GTK_COMBO_BOX(timetableentityselectorcombobox), 0);
     g_signal_connect(timetableentityselectorcombobox, "realize", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
     g_signal_connect(timetableentityselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
-    g_print("Leaving Set EntitySelectorEntities.\n\n");
 }
 
 static void solve_for_timetable(GtkButton *button, gpointer data)
@@ -689,7 +685,6 @@ void fill_facultydetails_array(
     {
         int j;
         int faculty_id_as_int = strtol(facultycsv_raw_array[i][0], NULL, 10);
-        printf("FacultyID as int: %d", faculty_id_as_int);
         if (current_fac_id != faculty_id_as_int)
         {
             current_fac_id = faculty_id_as_int;
