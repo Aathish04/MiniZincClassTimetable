@@ -11,6 +11,8 @@ const char defaultcoursescsvpath[] = "inputdata/Courses.csv";
 const char defaultfacultycsvpath[] = "inputdata/Faculty.csv";
 const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
 const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
+const float DEFAULT_NUM_SLOTS = 3.0;
+const float DEFAULT_DAYS_PER_WEEK = 2.0;
 
 const int FILENOTFOUND_ERRORCODE = 32512;
 const int UNSATISFIABLECONSTRAINTS_ERRORCODE = 2;
@@ -546,7 +548,7 @@ static void activate(GtkApplication *app, gpointer user_data)
         label,
         0, 4, 1, 1);
     button = gtk_spin_button_new(
-        gtk_adjustment_new(2.0, 1.0, 7.0, 1.0, 1.0, 0.0),
+        gtk_adjustment_new(DEFAULT_DAYS_PER_WEEK, 1.0, 7.0, 1.0, 1.0, 0.0),
         1.0, 0);
     g_object_set_data(G_OBJECT(solvebutton), "daysperweekspinbutton", button);
     gtk_grid_attach(GTK_GRID(grid), button, 1, 4, 1, 1);
@@ -556,7 +558,7 @@ static void activate(GtkApplication *app, gpointer user_data)
         GTK_GRID(grid),
         label,
         0, 5, 1, 1);
-    button = gtk_spin_button_new(gtk_adjustment_new(6.0, 2.0, 20.0, 1.0, 1.0, 0.0), 1.0, 0);
+    button = gtk_spin_button_new(gtk_adjustment_new(DEFAULT_NUM_SLOTS, 2.0, 20.0, 1.0, 1.0, 0.0), 1.0, 0);
     g_object_set_data(G_OBJECT(solvebutton), "slotsperdayspinbutton", button);
     gtk_grid_attach(GTK_GRID(grid), button, 1, 5, 1, 1);
 
