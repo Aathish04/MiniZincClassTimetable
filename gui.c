@@ -7,6 +7,10 @@
 #include "lib/csv.h"
 #include "lib/ext/jsmn/jsmn.h"
 
+const int FILENOTFOUND_ERRORCODE = 32512;
+const int UNSATISFIABLECONSTRAINTS_ERRORCODE = 2;
+const int GENERIC_MINIZINC_ERRORCODE = 3;
+
 int int_value_in_array(int value, int array[], int arraylen);
 int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
 int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
@@ -28,7 +32,7 @@ int fill_unique_facultyarray_return_num_unique_faculty(int facultycsv_numrecords
 int fill_unique_coursesarray_return_num_unique_courses(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_courses_array[facultycsv_numrecords]);
 int fill_unique_sectionid_array_return_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size], int unique_sectionids_array[sectionscsv_numrecords]);
 
-void call_minizinc_and_fill_timetable_arrays(
+int call_minizinc_and_fill_timetable_arrays(
     char COMMAND[], int num_slots_per_day, int num_days_per_week,
     int num_faculty, int faculty_timetable_array[num_faculty][num_days_per_week][num_slots_per_day],
     int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
@@ -158,6 +162,7 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
 
 static void solve_for_timetable(GtkButton *button, gpointer data)
 {
+    GtkWidget *parent_window = g_object_get_data(G_OBJECT(button), "parent_window");
     const char *CoursesCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "coursescsvpathentry"))));
     const char *FacultyCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "facultycsvpathentry"))));
     const char *SectionsCSVPath = gtk_entry_buffer_get_text(gtk_entry_get_buffer(GTK_ENTRY(g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"))));
@@ -232,209 +237,239 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     int room_timetable_array[roomscsv_numrecords][num_days_per_week][num_slots_per_day];
 
     g_print("Calling MiniZinc and obtaining Timetables...\n");
-    call_minizinc_and_fill_timetable_arrays(
+    int minizinc_call_return_val = call_minizinc_and_fill_timetable_arrays(
         COMMAND, num_slots_per_day, num_days_per_week,
         num_unique_faculty, faculty_timetable_array,
         num_unique_sections, section_timetable_array,
         roomscsv_numrecords, room_timetable_array);
-
-    for (int i = 0; i < num_unique_faculty; i++)
+    if (minizinc_call_return_val != 0)
     {
-        g_print("Faculty: %d\n", i);
-        for (int j = 0; j < num_days_per_week; j++)
+        GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT | GTK_DIALOG_MODAL;
+        GtkWidget *dialog;
+        GString *errormessage;
+        if (minizinc_call_return_val == FILENOTFOUND_ERRORCODE)
         {
-            g_print("Day %d: \t", j);
-            for (int k = 0; k < num_slots_per_day; k++)
-            {
-                g_print("%d ", faculty_timetable_array[i][j][k]);
-            }
-            g_print("\n");
+            errormessage = g_string_new("\nMiniZinc was not found. Ensure MiniZinc is in your PATH.");
         }
+        else if (minizinc_call_return_val == UNSATISFIABLECONSTRAINTS_ERRORCODE)
+        {
+            errormessage = g_string_new("\nYour Constraints Could Not Be Satisfied.");
+        }
+        else if (minizinc_call_return_val == GENERIC_MINIZINC_ERRORCODE)
+        {
+            errormessage = g_string_new(
+                g_strdup_printf("\nMinizinc threw an error.\nTry running\n%s\nto figure out what the error is.", COMMAND));
+        }
+        dialog = gtk_message_dialog_new(
+            GTK_WINDOW(parent_window),
+            flags,
+            GTK_MESSAGE_ERROR,
+            GTK_BUTTONS_CLOSE, "%s", errormessage->str);
+        g_print("%s\n", errormessage->str);
+        g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
+        gtk_widget_show(dialog);
     }
-
-    for (int i = 0; i < num_unique_sections; i++)
+    else
     {
-        g_print("Section: %d\n", i);
-        for (int j = 0; j < num_days_per_week; j++)
+
+        for (int i = 0; i < num_unique_faculty; i++)
         {
-            g_print("Day %d: \t", j);
-            for (int k = 0; k < num_slots_per_day; k++)
+            g_print("Faculty: %d\n", i);
+            for (int j = 0; j < num_days_per_week; j++)
             {
-                g_print("%d ", section_timetable_array[i][j][k]);
-            }
-            g_print("\n");
-        }
-    }
-
-    for (int i = 0; i < roomscsv_numrecords; i++)
-    {
-        g_print("Room: %d\n", i);
-        for (int j = 0; j < num_days_per_week; j++)
-        {
-            g_print("Day %d: \t", j);
-            for (int k = 0; k < num_slots_per_day; k++)
-            {
-                g_print("%d ", room_timetable_array[i][j][k]);
-            }
-            g_print("\n");
-        }
-    }
-
-    GtkWidget *outputwindow;
-    GtkWidget *outputwindowgrid;
-    GtkWidget *timetabletypeselectorcombobox;
-    GtkWidget *timetableentityselectorcombobox;
-
-    outputwindowgrid = gtk_grid_new();
-    char *DaysOfWeek[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-    int entityindex = 0;
-
-    timetabletypeselectorcombobox = gtk_combo_box_text_new();
-
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Faculty");
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Section");
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Room");
-
-    gtk_combo_box_set_active(GTK_COMBO_BOX(timetabletypeselectorcombobox), 0);
-
-    timetableentityselectorcombobox = gtk_combo_box_text_new();
-
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_faculty", GINT_TO_POINTER(num_unique_faculty));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numrecords", GINT_TO_POINTER(facultycsv_numrecords));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numcols", GINT_TO_POINTER(facultycsv_numcols));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_longestvaluelen", GINT_TO_POINTER(facultycsv_longestvaluelen));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_sections", GINT_TO_POINTER(num_unique_sections));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numrecords", GINT_TO_POINTER(sectionscsv_numrecords));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numcols", GINT_TO_POINTER(sectionscsv_numcols));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_longestvaluelen", GINT_TO_POINTER(sectionscsv_longestvaluelen));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "roomscsv_numrecords", GINT_TO_POINTER(roomscsv_numrecords));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsvpathentry", g_object_get_data(G_OBJECT(button), "facultycsvpathentry"));
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsvpathentry", g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"));
-
-    g_signal_connect(timetabletypeselectorcombobox, "realize", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
-    g_signal_connect(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
-
-    int treeviewnum_cols = num_slots_per_day + 1;
-
-    GType col_datatypes[treeviewnum_cols];
-    for (int i = 0; i < treeviewnum_cols; i++)
-    {
-        col_datatypes[i] = G_TYPE_STRING;
-    }
-
-    GPtrArray *facu_timetable_store_array = g_ptr_array_new();
-    GPtrArray *sect_timetable_store_array = g_ptr_array_new();
-    GPtrArray *room_timetable_store_array = g_ptr_array_new();
-    for (int timetabletype = 0; timetabletype < 3; timetabletype++)
-    {
-        int num_entities;
-        if (timetabletype == 0)
-        {
-            num_entities = num_unique_faculty;
-        }
-        else if (timetabletype == 1)
-        {
-            num_entities = num_unique_sections;
-        }
-        else
-        {
-            num_entities = roomscsv_numrecords;
-        }
-
-        for (int entityindex = 0; entityindex < num_entities; entityindex++)
-        {
-            GtkListStore *store = gtk_list_store_newv(treeviewnum_cols, col_datatypes);
-            GtkTreeIter iter;
-            for (int dayofweek = 0; dayofweek < num_days_per_week; dayofweek++)
-            {
-                gtk_list_store_append(store, &iter);
-                gtk_list_store_set(store, &iter, 0, DaysOfWeek[dayofweek], -1);
-                for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+                g_print("Day %d: \t", j);
+                for (int k = 0; k < num_slots_per_day; k++)
                 {
-                    if (timetabletype == 0)
-                    {
-                        gtk_list_store_set(
-                            store, &iter, treeviewcolnum,
-                            coursename_from_courseid(
-                                faculty_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
-                                coursescsv_numrecords,
-                                coursescsv_numcols,
-                                coursescsv_longestvaluelen + 1,
-                                coursescsv_raw_array),
-                            -1);
-                    }
-                    else if (timetabletype == 1)
-                    {
-                        gtk_list_store_set(
-                            store, &iter, treeviewcolnum,
-                            coursename_from_courseid(
-                                section_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
-                                coursescsv_numrecords,
-                                coursescsv_numcols,
-                                coursescsv_longestvaluelen + 1,
-                                coursescsv_raw_array),
-                            -1);
-                    }
-                    else
-                    {
-                        gtk_list_store_set(
-                            store, &iter, treeviewcolnum,
-                            coursename_from_courseid(
-                                room_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
-                                coursescsv_numrecords,
-                                coursescsv_numcols,
-                                coursescsv_longestvaluelen + 1,
-                                coursescsv_raw_array),
-                            -1);
-                    }
+                    g_print("%d ", faculty_timetable_array[i][j][k]);
                 }
+                g_print("\n");
             }
+        }
+
+        for (int i = 0; i < num_unique_sections; i++)
+        {
+            g_print("Section: %d\n", i);
+            for (int j = 0; j < num_days_per_week; j++)
+            {
+                g_print("Day %d: \t", j);
+                for (int k = 0; k < num_slots_per_day; k++)
+                {
+                    g_print("%d ", section_timetable_array[i][j][k]);
+                }
+                g_print("\n");
+            }
+        }
+
+        for (int i = 0; i < roomscsv_numrecords; i++)
+        {
+            g_print("Room: %d\n", i);
+            for (int j = 0; j < num_days_per_week; j++)
+            {
+                g_print("Day %d: \t", j);
+                for (int k = 0; k < num_slots_per_day; k++)
+                {
+                    g_print("%d ", room_timetable_array[i][j][k]);
+                }
+                g_print("\n");
+            }
+        }
+
+        GtkWidget *outputwindow;
+        GtkWidget *outputwindowgrid;
+        GtkWidget *timetabletypeselectorcombobox;
+        GtkWidget *timetableentityselectorcombobox;
+
+        outputwindowgrid = gtk_grid_new();
+        char *DaysOfWeek[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        int entityindex = 0;
+
+        timetabletypeselectorcombobox = gtk_combo_box_text_new();
+
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Faculty");
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Section");
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(timetabletypeselectorcombobox), "Room");
+
+        gtk_combo_box_set_active(GTK_COMBO_BOX(timetabletypeselectorcombobox), 0);
+
+        timetableentityselectorcombobox = gtk_combo_box_text_new();
+
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_faculty", GINT_TO_POINTER(num_unique_faculty));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numrecords", GINT_TO_POINTER(facultycsv_numrecords));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_numcols", GINT_TO_POINTER(facultycsv_numcols));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsv_longestvaluelen", GINT_TO_POINTER(facultycsv_longestvaluelen));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "num_unique_sections", GINT_TO_POINTER(num_unique_sections));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numrecords", GINT_TO_POINTER(sectionscsv_numrecords));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_numcols", GINT_TO_POINTER(sectionscsv_numcols));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsv_longestvaluelen", GINT_TO_POINTER(sectionscsv_longestvaluelen));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "roomscsv_numrecords", GINT_TO_POINTER(roomscsv_numrecords));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facultycsvpathentry", g_object_get_data(G_OBJECT(button), "facultycsvpathentry"));
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sectionscsvpathentry", g_object_get_data(G_OBJECT(button), "sectionscsvpathentry"));
+
+        g_signal_connect(timetabletypeselectorcombobox, "realize", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
+        g_signal_connect(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entityselector_entities), timetableentityselectorcombobox);
+
+        int treeviewnum_cols = num_slots_per_day + 1;
+
+        GType col_datatypes[treeviewnum_cols];
+        for (int i = 0; i < treeviewnum_cols; i++)
+        {
+            col_datatypes[i] = G_TYPE_STRING;
+        }
+
+        GPtrArray *facu_timetable_store_array = g_ptr_array_new();
+        GPtrArray *sect_timetable_store_array = g_ptr_array_new();
+        GPtrArray *room_timetable_store_array = g_ptr_array_new();
+        for (int timetabletype = 0; timetabletype < 3; timetabletype++)
+        {
+            int num_entities;
             if (timetabletype == 0)
             {
-                g_ptr_array_add(facu_timetable_store_array, store);
+                num_entities = num_unique_faculty;
             }
             else if (timetabletype == 1)
             {
-                g_ptr_array_add(sect_timetable_store_array, store);
+                num_entities = num_unique_sections;
             }
             else
             {
-                g_ptr_array_add(room_timetable_store_array, store);
+                num_entities = roomscsv_numrecords;
+            }
+
+            for (int entityindex = 0; entityindex < num_entities; entityindex++)
+            {
+                GtkListStore *store = gtk_list_store_newv(treeviewnum_cols, col_datatypes);
+                GtkTreeIter iter;
+                for (int dayofweek = 0; dayofweek < num_days_per_week; dayofweek++)
+                {
+                    gtk_list_store_append(store, &iter);
+                    gtk_list_store_set(store, &iter, 0, DaysOfWeek[dayofweek], -1);
+                    for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+                    {
+                        if (timetabletype == 0)
+                        {
+                            gtk_list_store_set(
+                                store, &iter, treeviewcolnum,
+                                coursename_from_courseid(
+                                    faculty_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
+                                    coursescsv_numrecords,
+                                    coursescsv_numcols,
+                                    coursescsv_longestvaluelen + 1,
+                                    coursescsv_raw_array),
+                                -1);
+                        }
+                        else if (timetabletype == 1)
+                        {
+                            gtk_list_store_set(
+                                store, &iter, treeviewcolnum,
+                                coursename_from_courseid(
+                                    section_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
+                                    coursescsv_numrecords,
+                                    coursescsv_numcols,
+                                    coursescsv_longestvaluelen + 1,
+                                    coursescsv_raw_array),
+                                -1);
+                        }
+                        else
+                        {
+                            gtk_list_store_set(
+                                store, &iter, treeviewcolnum,
+                                coursename_from_courseid(
+                                    room_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
+                                    coursescsv_numrecords,
+                                    coursescsv_numcols,
+                                    coursescsv_longestvaluelen + 1,
+                                    coursescsv_raw_array),
+                                -1);
+                        }
+                    }
+                }
+                if (timetabletype == 0)
+                {
+                    g_ptr_array_add(facu_timetable_store_array, store);
+                }
+                else if (timetabletype == 1)
+                {
+                    g_ptr_array_add(sect_timetable_store_array, store);
+                }
+                else
+                {
+                    g_ptr_array_add(room_timetable_store_array, store);
+                }
             }
         }
-    }
 
-    GtkWidget *tree;
-    tree = gtk_tree_view_new();
+        GtkWidget *tree;
+        tree = gtk_tree_view_new();
 
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facu_timetable_store_array", facu_timetable_store_array);
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sect_timetable_store_array", sect_timetable_store_array);
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "room_timetable_store_array", room_timetable_store_array);
-    g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "tree", tree);
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "facu_timetable_store_array", facu_timetable_store_array);
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "sect_timetable_store_array", sect_timetable_store_array);
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "room_timetable_store_array", room_timetable_store_array);
+        g_object_set_data(G_OBJECT(timetableentityselectorcombobox), "tree", tree);
 
-    g_signal_connect(timetableentityselectorcombobox, "realize", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
-    g_signal_connect(timetableentityselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+        g_signal_connect(timetableentityselectorcombobox, "realize", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
+        g_signal_connect(timetableentityselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
 
-    g_signal_connect_swapped(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetableentityselectorcombobox);
-    GtkCellRenderer *renderer;
-    GtkTreeViewColumn *column;
-    renderer = gtk_cell_renderer_text_new();
+        g_signal_connect_swapped(timetabletypeselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetableentityselectorcombobox);
+        GtkCellRenderer *renderer;
+        GtkTreeViewColumn *column;
+        renderer = gtk_cell_renderer_text_new();
 
-    column = gtk_tree_view_column_new_with_attributes("Day\\Slot", renderer, "text", 0, NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
-    for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
-    {
-        gchar *columnname = g_strdup_printf("Slot %i", treeviewcolnum);
-        column = gtk_tree_view_column_new_with_attributes(columnname, renderer, "text", treeviewcolnum, NULL);
+        column = gtk_tree_view_column_new_with_attributes("Day\\Slot", renderer, "text", 0, NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+        for (int treeviewcolnum = 1; treeviewcolnum < treeviewnum_cols; treeviewcolnum++)
+        {
+            gchar *columnname = g_strdup_printf("Slot %i", treeviewcolnum);
+            column = gtk_tree_view_column_new_with_attributes(columnname, renderer, "text", treeviewcolnum, NULL);
+            gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+        }
+        outputwindow = gtk_window_new();
+        gtk_window_set_title(GTK_WINDOW(outputwindow), "TimeTable Output");
+        gtk_window_set_child(GTK_WINDOW(outputwindow), outputwindowgrid);
+        gtk_grid_attach(GTK_GRID(outputwindowgrid), tree, 0, 0, 2, 1);
+        gtk_grid_attach(GTK_GRID(outputwindowgrid), timetabletypeselectorcombobox, 0, 1, 1, 1);
+        gtk_grid_attach(GTK_GRID(outputwindowgrid), timetableentityselectorcombobox, 1, 1, 1, 1);
+        gtk_widget_show(outputwindow);
     }
-    outputwindow = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(outputwindow), "TimeTable Output");
-    gtk_window_set_child(GTK_WINDOW(outputwindow), outputwindowgrid);
-    gtk_grid_attach(GTK_GRID(outputwindowgrid), tree, 0, 0, 2, 1);
-    gtk_grid_attach(GTK_GRID(outputwindowgrid), timetabletypeselectorcombobox, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(outputwindowgrid), timetableentityselectorcombobox, 1, 1, 1, 1);
-    gtk_widget_show(outputwindow);
 }
 
 static void activate(GtkApplication *app, gpointer user_data)
@@ -461,7 +496,7 @@ static void activate(GtkApplication *app, gpointer user_data)
         "Open", "Cancel");
 
     solvebutton = gtk_button_new_with_label("Solve for Timetable");
-
+    g_object_set_data(G_OBJECT(solvebutton), "parent_window", window);
     pathtextentry = gtk_entry_new();
     gtk_entry_buffer_set_text(gtk_entry_get_buffer(GTK_ENTRY(pathtextentry)), defaultcoursescsvpath, -1);
     gtk_entry_set_placeholder_text(GTK_ENTRY(pathtextentry), "Courses CSV Path");
@@ -835,10 +870,9 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "\"num_sections\":%d", num_unique_sections);
     fprintf(outputjsonfilepointer, "}");
     fclose(outputjsonfilepointer);
-    // exit(1);
 }
 
-void call_minizinc_and_fill_timetable_arrays(
+int call_minizinc_and_fill_timetable_arrays(
     char COMMAND[], int num_slots_per_day, int num_days_per_week,
     int num_faculty, int faculty_timetable_array[num_faculty][num_days_per_week][num_slots_per_day],
     int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
@@ -872,8 +906,11 @@ void call_minizinc_and_fill_timetable_arrays(
         MiniZincCallOutput[charcounter++] = curchar;
     }
     MiniZincCallOutput[charcounter] = '\0';
-    pclose(MiniZincCall);
-
+    int MiniZincCallReturnVal = pclose(MiniZincCall);
+    if (MiniZincCallReturnVal == FILENOTFOUND_ERRORCODE)
+    {
+        return MiniZincCallReturnVal;
+    }
     typedef enum
     {
         FACULTY = 0,
@@ -891,8 +928,9 @@ void call_minizinc_and_fill_timetable_arrays(
 
     jsmn_init(&json_parser);
     jsmn_parse(&json_parser, MiniZincCallOutput, charcounter, tokens_array, num_tokens);
-    char last_string_key_read[17];
     timetable_kind current_timetable_kind = NONE;
+    int next_is_type_of_returned_info = 0;
+    int next_is_status = 0;
     for (int i = 0; i < num_tokens; i++)
     {
         jsmntok_t key = tokens_array[i];
@@ -902,7 +940,30 @@ void call_minizinc_and_fill_timetable_arrays(
         keyString[length] = '\0';
         if (key.type == JSMN_STRING)
         {
-            if (!(strcmp(keyString, "facultyTimetable")))
+            if (!(strcmp(keyString, "type")))
+            {
+                next_is_type_of_returned_info = 1;
+            }
+            else if (next_is_type_of_returned_info)
+            {
+                if (!(strcmp(keyString, "status")))
+                {
+                    next_is_status = 1;
+                }
+                else if (!(strcmp(keyString, "error")))
+                {
+                    return GENERIC_MINIZINC_ERRORCODE;
+                }
+                next_is_type_of_returned_info = 0;
+            }
+            else if (next_is_status)
+            {
+                if (!(strcmp(keyString, "UNSATISFIABLE")))
+                {
+                    return UNSATISFIABLECONSTRAINTS_ERRORCODE;
+                }
+            }
+            else if (!(strcmp(keyString, "facultyTimetable")))
             {
                 current_timetable_kind = FACULTY;
             }
@@ -968,4 +1029,5 @@ void call_minizinc_and_fill_timetable_arrays(
             }
         }
     }
+    return 0;
 }
