@@ -13,7 +13,6 @@ const int GENERIC_MINIZINC_ERRORCODE = 3;
 
 int int_value_in_array(int value, int array[], int arraylen);
 int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
-int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size]);
 char *coursename_from_courseid(int courseid, int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 char *facultyname_from_facultyid(int facultyid, int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
 char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int sectioncsv_numcols, int sectioncsv_data_size, char sectioncsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_data_size]);
@@ -579,32 +578,6 @@ int main(int argc, char **argv)
     return status;
 }
 
-int calc_max_num_courses_for_single_sec(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size])
-{
-    int max_num_courses_for_single_sec = 0;
-    int num_courses_for_single_class = 0;
-    int current_sectionid = -1;
-
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        int section_id_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
-        if (section_id_as_int != current_sectionid)
-        {
-            if (max_num_courses_for_single_sec < num_courses_for_single_class)
-            {
-                max_num_courses_for_single_sec = num_courses_for_single_class;
-            }
-            current_sectionid = section_id_as_int;
-            num_courses_for_single_class = 1;
-        }
-        else
-        {
-            num_courses_for_single_class++;
-        }
-    }
-    return max_num_courses_for_single_sec;
-}
-
 int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size])
 {
     int max_num_classes_for_single_fac = 0;
@@ -628,26 +601,6 @@ int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords,
         }
     }
     return max_num_classes_for_single_fac;
-}
-
-int calc_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectioncsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectioncsv_data_size])
-{
-    int unique_sections_array[sectionscsv_numrecords];
-    int first_section_id = strtol(sectionscsv_raw_array[0][0], NULL, 10);
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        unique_sections_array[i] = first_section_id;
-    }
-    int unique_sections_array_index = 1;
-    for (int i = 0; i < sectionscsv_numrecords; i++)
-    {
-        int sectionid_as_int = strtol(sectionscsv_raw_array[i][0], NULL, 10);
-        if (!(int_value_in_array(sectionid_as_int, unique_sections_array, sectionscsv_numrecords)))
-        {
-            unique_sections_array[unique_sections_array_index++] = sectionid_as_int;
-        }
-    }
-    return unique_sections_array_index;
 }
 
 int int_value_in_array(int value, int array[], int arraylen)
