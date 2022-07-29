@@ -7,6 +7,11 @@
 #include "lib/csv.h"
 #include "lib/ext/jsmn/jsmn.h"
 
+const char defaultcoursescsvpath[] = "inputdata/Courses.csv";
+const char defaultfacultycsvpath[] = "inputdata/Faculty.csv";
+const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
+const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
+
 const int FILENOTFOUND_ERRORCODE = 32512;
 const int UNSATISFIABLECONSTRAINTS_ERRORCODE = 2;
 const int GENERIC_MINIZINC_ERRORCODE = 3;
@@ -32,15 +37,10 @@ int fill_unique_coursesarray_return_num_unique_courses(int facultycsv_numrecords
 int fill_unique_sectionid_array_return_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size], int unique_sectionids_array[sectionscsv_numrecords]);
 
 int call_minizinc_and_fill_timetable_arrays(
-    char COMMAND[], int num_slots_per_day, int num_days_per_week,
+    char *COMMAND, int num_slots_per_day, int num_days_per_week,
     int num_faculty, int faculty_timetable_array[num_faculty][num_days_per_week][num_slots_per_day],
     int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
     int num_rooms, int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day]);
-
-const char defaultcoursescsvpath[] = "inputdata/Courses.csv";
-const char defaultfacultycsvpath[] = "inputdata/Faculty.csv";
-const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
-const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
 
 static void on_filechooser_response(GtkNativeDialog *native, int response)
 {
@@ -833,7 +833,7 @@ void write_output_json_file(
 }
 
 int call_minizinc_and_fill_timetable_arrays(
-    char COMMAND[], int num_slots_per_day, int num_days_per_week,
+    char *COMMAND, int num_slots_per_day, int num_days_per_week,
     int num_faculty, int faculty_timetable_array[num_faculty][num_days_per_week][num_slots_per_day],
     int num_sections, int section_timetable_array[num_sections][num_days_per_week][num_slots_per_day],
     int num_rooms, int room_timetable_array[num_rooms][num_days_per_week][num_slots_per_day])
