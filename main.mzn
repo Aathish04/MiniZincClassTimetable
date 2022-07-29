@@ -1,5 +1,3 @@
-% Use this editor as a MiniZinc scratch book
-
 include "globals.mzn";
 include "alldifferent.mzn";
 
@@ -31,6 +29,7 @@ array[faculty_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: facultyTim
 array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
 array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomTimetable;
 
+% Helper Functions
 function int: faculty_id_to_index(int:facultyid) = 
    sum(  [ if facultyid = facultyids_array[i] 
               then i
@@ -51,7 +50,8 @@ forall(d in daysPerWeek,s in slotsPerDay)
            endif) <= num_rooms
     );
 
-% limiting number of hours per day for faculty
+% Ensure faculty don't teach for more than half the number of
+% slots per day.
 constraint 
 forall(d in daysPerWeek,t in faculty_index_arr)
     (
@@ -59,11 +59,40 @@ forall(d in daysPerWeek,t in faculty_index_arr)
            (if facultyTimetable[t,d,s]!=0 
                then 1 
                else 0 
-           endif) < 4
+           endif) < (slots/2)+1
     );
 
-% Faculty Occupancy Constraint
-constraint 
+% Ensure No Consecutive Same Class for Faculty
+constraint
+forall(f in faculty_index_arr,d in daysPerWeek)(
+    forall(s in slotsPerDay[1..slots-1])(
+        facultyTimetable[f,d,s] != facultyTimetable[f,d,s+1]
+    )
+);
+
+% % Ensure faculty have free slot after every occupied slot
+% constraint
+% forall(f in faculty_index_arr,d in daysPerWeek)(
+%     forall(s in slotsPerDay[1..slots-1])(
+%         if facultyTimetable[f,d,s] > 0
+%         then facultyTimetable[f,d,s+1] = 0
+%         endif
+%     )
+% );
+
+% Constrain hours per week for course to hours_per_week for that course.
+constraint
+forall(f in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
+    sum(d in daysPerWeek,s in slotsPerDay)(
+        if facultyTimetable[f,d,s] == facultydetails[f,class,3]
+        then 1
+        else 0
+        endif
+    ) == facultydetails[f,class,4]
+);
+
+% Ensure Faculty teach at least one slot every day.
+constraint
 forall(d in daysPerWeek,t in faculty_index_arr)
     (
         sum(s in slotsPerDay)
@@ -72,6 +101,25 @@ forall(d in daysPerWeek,t in faculty_index_arr)
                else 0 
            endif) > 0
     );
+
+% Ensure faculty are only given courses they've been assigned.
+% NOTE: THIS NEEDS MORE TESTING!!!
+constraint
+forall (c in coursesarray)(
+    if sum(f in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)
+    (
+        if facultydetails[f,class,3] == c
+        then 1
+        else 0
+        endif
+    ) < 1 
+    then forall(f in faculty_index_arr,d in daysPerWeek, s in slotsPerDay)(
+        if facultyTimetable[f,d,s] != 0
+        then facultyTimetable[f,d,s] != c
+        endif
+    )
+    endif
+);
 
 % Method of Solving
 solve satisfy;
