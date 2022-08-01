@@ -1,11 +1,11 @@
-courseid,coursecode,coursename,hoursperweek,islab
-0,UXX0000,Free Period,-1,0
-1,UCS2201,Fundamentals and Practice of Software Development,3,0
-2,UCS2202,Foundations of Data Science,3,0
-3,UMA2276,Complex Functions and Laplace Transforms,4,0
-4,UEE2276,Basic Electrical and Electronics Engineering,3,0
-5,UEN0000,Humanities I-Elective,4,0
-6,UGE2297,Design Thinking & Engineering Practices Lab,6,1
-7,UCY2276,Environmental Science,3,0
-8,UEE2201,Electrical Circuits & Systems Fundamental and Practice,3,0
-9,UME2251,Engineering Mechanics for Electrical Engineers,3,0
+courseid,coursecode,coursename,hoursperweek,numcredits,islab
+0,UXX0000,Free Period,-1,0,0
+1,UCS2201,Fundamentals and Practice of Software Development,3,4,0
+2,UCS2202,Foundations of Data Science,3,4,0
+3,UMA2276,Complex Functions and Laplace Transforms,4,4,0
+4,UEE2276,Basic Electrical and Electronics Engineering,3,3,0
+5,UEN0000,Humanities I-Elective,4,4,0
+6,UGE2297,Design Thinking & Engineering Practices Lab,6,3,1
+7,UCY2276,Environmental Science,3,0,0
+8,UEE2201,Electrical Circuits & Systems Fundamental and Practice,3,3,0
+9,UME2251,Engineering Mechanics for Electrical Engineers,3,3,0
