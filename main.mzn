@@ -20,6 +20,8 @@ array[faculty_index_arr,classes_per_week_for_single_fac_index_arr,1..5] of int: 
 int:num_sections;
 set of int:sections_index_arr = 1..num_sections;
 
+array[sections_index_arr] of int : sectionids_array;
+
 set of int: rooms;
 int:num_rooms = length(rooms);
 set of int: coursesarray;
@@ -119,6 +121,16 @@ forall (c in coursesarray)(
         endif
     )
     endif
+);
+
+% Constrain faculty and sections to have a consistent timetable.
+constraint
+forall(f in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
+    forall(sec in sections_index_arr,d in daysPerWeek, s in slotsPerDay)(
+        if facultydetails[f,class,2] == sectionids_array[sec]
+        then sectionTimetable[sec,d,s] = facultyTimetable[f,d,s]
+        endif
+    )
 );
 
 % Method of Solving
