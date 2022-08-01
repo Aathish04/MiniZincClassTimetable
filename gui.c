@@ -411,12 +411,12 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
                         {
                             gtk_list_store_set(
                                 store, &iter, treeviewcolnum,
-                                coursename_from_courseid(
+                                facultyname_from_facultyid(
                                     room_timetable_array[entityindex][dayofweek][treeviewcolnum - 1],
-                                    coursescsv_numrecords,
-                                    coursescsv_numcols,
-                                    coursescsv_longestvaluelen + 1,
-                                    coursescsv_raw_array),
+                                    facultycsv_numrecords,
+                                    facultycsv_numcols,
+                                    facultycsv_longestvaluelen + 1,
+                                    facultycsv_raw_array),
                                 -1);
                         }
                     }

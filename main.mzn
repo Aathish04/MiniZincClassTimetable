@@ -15,7 +15,7 @@ array[faculty_index_arr] of int : facultyids_array;
 int : max_num_diff_classes_per_week_for_single_fac;
 set of int:classes_per_week_for_single_fac_index_arr = 1..max_num_diff_classes_per_week_for_single_fac;
 
-array[faculty_index_arr,classes_per_week_for_single_fac_index_arr,1..5] of int: facultydetails;
+array[faculty_index_arr,classes_per_week_for_single_fac_index_arr,1..6] of int: facultydetails;
 
 int:num_sections;
 set of int:sections_index_arr = 1..num_sections;
@@ -29,10 +29,10 @@ set of int: coursesarray;
 % Final Output Timetable Arrays
 array[faculty_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: facultyTimetable;
 array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
-array[rooms,daysPerWeek,slotsPerDay] of var coursesarray: roomTimetable;
+array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array): roomTimetable;
 
 % Helper Functions
-function int: faculty_id_to_index(int:facultyid) = 
+function var int: faculty_id_to_index(var int:facultyid) = 
    sum(  [ if facultyid = facultyids_array[i] 
               then i
            else 0 endif  
@@ -133,5 +133,26 @@ forall(f in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr
     )
 );
 
+% If a room is allotted to a faculty, they must not be free then.
+constraint
+forall(f in faculty_index_arr,d in daysPerWeek, s in slotsPerDay)(
+    forall(roomid in rooms)(
+        if roomTimetable[roomid,d,s] == facultyids_array[f]
+        then facultyTimetable[f,d,s] != 0
+        endif
+    )
+);
+
+% Faculty not given two rooms for same slot.
+constraint
+forall(f in faculty_index_arr, d in daysPerWeek, s in slotsPerDay)(
+    forall(allottedroomid in rooms)(
+        if roomTimetable[allottedroomid,d,s] == facultyids_array[f]
+        then forall(everyotherroomid in (rooms diff (allottedroomid..allottedroomid)))(
+            roomTimetable[everyotherroomid,d,s] != facultyids_array[f]
+        )
+        endif
+    )
+);
 % Method of Solving
 solve satisfy;
