@@ -107,19 +107,21 @@ forall(facultyindex in faculty_index_arr, day in daysPerWeek)(
 % NOTE: THIS NEEDS MORE TESTING!!!
 constraint
 forall (courseid in coursesarray)(
-    if sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)
-    (
-        if facultydetails[facultyindex,class,3] == courseid
-        then 1
-        else 0
-        endif
-    ) < 1
-    then forall(facultyindex in faculty_index_arr, day in daysPerWeek, slot in slotsPerDay)(
-        if facultyTimetable[facultyindex,day,slot] != 0
-        then facultyTimetable[facultyindex,day,slot] != courseid
+    forall(facultyindex in faculty_index_arr)(
+        if sum(class in classes_per_week_for_single_fac_index_arr)
+        (
+            if facultydetails[facultyindex,class,3] == courseid
+            then 1
+            else 0
+            endif
+        ) < 1
+        then forall(day in daysPerWeek, slot in slotsPerDay)(
+            if facultyTimetable[facultyindex,day,slot] != 0
+            then facultyTimetable[facultyindex,day,slot] != courseid
+            endif
+        )
         endif
     )
-    endif
 );
 
 % Constrain faculty and sections to have a consistent timetable.
