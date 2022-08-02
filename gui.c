@@ -799,7 +799,7 @@ void write_output_json_file(
     for (int i = 0; i < num_unique_faculty; i++)
     {
         fprintf(outputjsonfilepointer, "%d", unique_faculty_array[i]);
-        if (i < num_unique_sections - 1)
+        if (i < num_unique_faculty - 1)
         {
             fprintf(outputjsonfilepointer, ",");
         }
