@@ -29,7 +29,7 @@ set of int: coursesarray;
 % Final Output Timetable Arrays
 array[faculty_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: facultyTimetable;
 array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
-array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array): roomTimetable;
+array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array++(0..0)): roomTimetable;
 
 % Helper Functions
 function var int: faculty_id_to_index(var int:facultyid) =
@@ -136,10 +136,22 @@ forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fa
 constraint
 forall(facultyindex in faculty_index_arr,day in daysPerWeek, slot in slotsPerDay)(
     forall(roomid in rooms)(
-        if roomTimetable[roomid,day,slot] == facultyids_array[facultyindex]
-        then facultyTimetable[facultyindex,day,slot] != 0
+        if facultyTimetable[facultyindex,day,slot] == 0
+        then roomTimetable[roomid,day,slot] != facultyids_array[facultyindex]
         endif
     )
+);
+
+% Limit rooms allotted to faculty for a particular slot to 1.
+constraint
+forall(facultyindex in faculty_index_arr, day in daysPerWeek, slot in slotsPerDay)( % For every faculty, day, slot combination
+    if facultyTimetable[facultyindex,day,slot]>0 % If the faculty is not free in that slot
+    then sum(roomid in rooms)
+        (if roomTimetable[roomid,day,slot]==facultyids_array[facultyindex]
+            then 1
+            else 0
+        endif) == 1 % Then the number of rooms allotted to that faculty will be limited to 1.
+    endif
 );
 % Method of Solving
 solve satisfy;
