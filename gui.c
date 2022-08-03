@@ -208,7 +208,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
         sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1,
         sectionscsv_raw_array, unique_sectionids_array);
 
-    int unique_courses_array[sectionscsv_numrecords];
+    int unique_courses_array[facultycsv_numrecords];
     int num_unique_courses = fill_unique_coursesarray_return_num_unique_courses(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_courses_array);
 
     int rooms_array[roomscsv_numrecords];
