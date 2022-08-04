@@ -83,17 +83,6 @@ forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fa
     ) == facultydetails[facultyindex,class,4]
 );
 
-% Room Limitation Constraint
-constraint
-forall(day in daysPerWeek, slot in slotsPerDay)(
-    sum(facultyindex in faculty_index_arr)(
-        if facultyTimetable[facultyindex,day,slot]!=0
-        then 1
-        else 0
-        endif
-    ) <= num_rooms
-);
-
 % Ensure faculty don't teach for more than half the number of
 % slots per day.
 constraint
@@ -132,6 +121,18 @@ forall(facultyindex in faculty_index_arr, day in daysPerWeek)(
             then 1
             else 0
         endif) > 0
+);
+
+% Room Related Constraints
+% Room Limitation Constraint
+constraint
+forall(day in daysPerWeek, slot in slotsPerDay)(
+    sum(facultyindex in faculty_index_arr)(
+        if facultyTimetable[facultyindex,day,slot]!=0
+        then 1
+        else 0
+        endif
+    ) <= num_rooms
 );
 
 % If a room is allotted to a faculty, they must not be free then.
