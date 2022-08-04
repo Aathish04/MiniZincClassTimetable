@@ -83,18 +83,6 @@ forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fa
     ) == facultydetails[facultyindex,class,4]
 );
 
-% Ensure faculty don't teach for more than half the number of
-% slots per day.
-constraint
-forall(day in daysPerWeek, facultyindex in faculty_index_arr)(
-    sum(slot in slotsPerDay)(
-        if facultyTimetable[facultyindex,day,slot]!=0
-        then 1
-        else 0
-        endif
-    ) < (slots/2)+1
-);
-
 % Ensure faculty do not have consecutive teaching hours unless
 % it is for a lab session.
 % Ensure faculty have free slot after every occupied slot unless
@@ -116,16 +104,6 @@ forall(f in faculty_index_arr,d in daysPerWeek)(
         then facultyTimetable[f,d,s-1] = 0
         endif
     )
-);
-
-% Ensure Faculty teach at least one slot every day.
-constraint
-forall(facultyindex in faculty_index_arr, day in daysPerWeek)(
-    sum(slot in slotsPerDay)
-        (if facultyTimetable[facultyindex,day,slot]!=0
-            then 1
-            else 0
-        endif) > 0
 );
 
 % Room Related Constraints
