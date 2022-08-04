@@ -105,7 +105,12 @@ forall(section_index in sections_index_arr, day in daysPerWeek)(
 constraint
 forall(f in faculty_index_arr,d in daysPerWeek)(
     forall(s in slotsPerDay[1..slots-1])(
-        if facultyTimetable[f,d,s] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(if facultydetails[f,class,3] == facultyTimetable[f,d,s] /\ (facultydetails[f,class,6] == 1) then 1 else 0 endif) == 0
+        if facultyTimetable[f,d,s] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
+            if facultydetails[f,class,3] == facultyTimetable[f,d,s] /\ (facultydetails[f,class,6] == 1)
+            then 1
+            else 0
+            endif
+        ) == 0
         then facultyTimetable[f,d,s+1] = 0
         endif
     )
@@ -115,7 +120,12 @@ forall(f in faculty_index_arr,d in daysPerWeek)(
 constraint
 forall(f in faculty_index_arr,d in daysPerWeek)(
     forall(s in slotsPerDay[2..slots])(
-        if facultyTimetable[f,d,s] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(if facultydetails[f,class,3] == facultyTimetable[f,d,s] /\ (facultydetails[f,class,6] == 1) then 1 else 0 endif) == 0
+        if facultyTimetable[f,d,s] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
+            if facultydetails[f,class,3] == facultyTimetable[f,d,s] /\ (facultydetails[f,class,6] == 1)
+            then 1
+            else 0
+            endif
+        ) == 0
         then facultyTimetable[f,d,s-1] = 0
         endif
     )
