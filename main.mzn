@@ -41,6 +41,48 @@ function var int: faculty_id_to_index(var int:facultyid) =
 
 % Rules
 
+% Constrain faculty and sections to have a consistent timetable.
+constraint
+forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
+    forall(sec in sections_index_arr,day in daysPerWeek, slot in slotsPerDay)(
+        if facultydetails[facultyindex,class,2] == sectionids_array[sec] /\ facultyTimetable[facultyindex,day,slot]!=0
+        then sectionTimetable[sec,day,slot] = facultyTimetable[facultyindex,day,slot]
+        endif
+    )
+);
+
+% Ensure faculty are only given courses they've been assigned.
+% NOTE: THIS NEEDS MORE TESTING!!!
+constraint
+forall (courseid in coursesarray)(
+    forall(facultyindex in faculty_index_arr)(
+        if sum(class in classes_per_week_for_single_fac_index_arr)
+        (
+            if facultydetails[facultyindex,class,3] == courseid
+            then 1
+            else 0
+            endif
+        ) < 1
+        then forall(day in daysPerWeek, slot in slotsPerDay)(
+            if facultyTimetable[facultyindex,day,slot] != 0
+            then facultyTimetable[facultyindex,day,slot] != courseid
+            endif
+        )
+        endif
+    )
+);
+
+% Constrain hours per week for course to hours_per_week for that course.
+constraint
+forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
+    sum(day in daysPerWeek, slot in slotsPerDay)(
+        if facultyTimetable[facultyindex,day,slot] == facultydetails[facultyindex,class,3]
+        then 1
+        else 0
+        endif
+    ) == facultydetails[facultyindex,class,4]
+);
+
 % Room Limitation Constraint
 constraint
 forall(day in daysPerWeek, slot in slotsPerDay)(
@@ -82,17 +124,6 @@ forall(facultyindex in faculty_index_arr,day in daysPerWeek)(
 %     )
 % );
 
-% Constrain hours per week for course to hours_per_week for that course.
-constraint
-forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
-    sum(day in daysPerWeek, slot in slotsPerDay)(
-        if facultyTimetable[facultyindex,day,slot] == facultydetails[facultyindex,class,3]
-        then 1
-        else 0
-        endif
-    ) == facultydetails[facultyindex,class,4]
-);
-
 % Ensure Faculty teach at least one slot every day.
 constraint
 forall(facultyindex in faculty_index_arr, day in daysPerWeek)(
@@ -101,37 +132,6 @@ forall(facultyindex in faculty_index_arr, day in daysPerWeek)(
             then 1
             else 0
         endif) > 0
-);
-
-% Ensure faculty are only given courses they've been assigned.
-% NOTE: THIS NEEDS MORE TESTING!!!
-constraint
-forall (courseid in coursesarray)(
-    forall(facultyindex in faculty_index_arr)(
-        if sum(class in classes_per_week_for_single_fac_index_arr)
-        (
-            if facultydetails[facultyindex,class,3] == courseid
-            then 1
-            else 0
-            endif
-        ) < 1
-        then forall(day in daysPerWeek, slot in slotsPerDay)(
-            if facultyTimetable[facultyindex,day,slot] != 0
-            then facultyTimetable[facultyindex,day,slot] != courseid
-            endif
-        )
-        endif
-    )
-);
-
-% Constrain faculty and sections to have a consistent timetable.
-constraint
-forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
-    forall(sec in sections_index_arr,day in daysPerWeek, slot in slotsPerDay)(
-        if facultydetails[facultyindex,class,2] == sectionids_array[sec] /\ facultyTimetable[facultyindex,day,slot]!=0
-        then sectionTimetable[sec,day,slot] = facultyTimetable[facultyindex,day,slot]
-        endif
-    )
 );
 
 % If a room is allotted to a faculty, they must not be free then.
