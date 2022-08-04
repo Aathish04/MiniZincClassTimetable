@@ -128,7 +128,7 @@ forall (courseid in coursesarray)(
 constraint
 forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
     forall(sec in sections_index_arr,day in daysPerWeek, slot in slotsPerDay)(
-        if facultydetails[facultyindex,class,2] == sectionids_array[sec]
+        if facultydetails[facultyindex,class,2] == sectionids_array[sec] /\ facultyTimetable[facultyindex,day,slot]!=0
         then sectionTimetable[sec,day,slot] = facultyTimetable[facultyindex,day,slot]
         endif
     )

@@ -1,5 +1,9 @@
 facultyid,departmentname,name,sectionid,courseid
 4,cse,Dr. R. Kanchana,0,1
 8,cse,Dr. J. Suresh,1,1
+24,cse,Mr. B. Senthil Kumar,0,2
+30,cse,Ms. S. Angel Deborah,1,2
 156,mech,Dr. Anirudh Venkatraman Krishnan,2,8
 159,mech,Dr. Divya Zindani,3,8
+25,cse,EVS Prof 1,2,7
+31,cse,EVS Prof 2,3,7
