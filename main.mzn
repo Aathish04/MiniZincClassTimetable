@@ -104,30 +104,30 @@ forall(section_index in sections_index_arr, day in daysPerWeek)(
 % Ensure faculty have free slot after every occupied slot unless
 % it is for a lab session.
 constraint
-forall(f in faculty_index_arr,d in daysPerWeek)(
-    forall(s in slotsPerDay[1..slots-1])(
-        if facultyTimetable[f,d,s] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
-            if facultydetails[f,class,3] == facultyTimetable[f,d,s] /\ (facultydetails[f,class,6] == 1)
+forall(facultyindex in faculty_index_arr,day in daysPerWeek)(
+    forall(slot in slotsPerDay[1..slots-1])(
+        if facultyTimetable[facultyindex,day,slot] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
+            if facultydetails[facultyindex,class,3] == facultyTimetable[facultyindex,day,slot] /\ (facultydetails[facultyindex,class,6] == 1)
             then 1
             else 0
             endif
         ) == 0
-        then facultyTimetable[f,d,s+1] = 0
+        then facultyTimetable[facultyindex,day,slot+1] = 0
         endif
     )
 );
 % Ensure faculty have free slot before every occupied slot unless
 % it is for a lab session.
 constraint
-forall(f in faculty_index_arr,d in daysPerWeek)(
-    forall(s in slotsPerDay[2..slots])(
-        if facultyTimetable[f,d,s] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
-            if facultydetails[f,class,3] == facultyTimetable[f,d,s] /\ (facultydetails[f,class,6] == 1)
+forall(facultyindex in faculty_index_arr,day in daysPerWeek)(
+    forall(slot in slotsPerDay[2..slots])(
+        if facultyTimetable[facultyindex,day,slot] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
+            if facultydetails[facultyindex,class,3] == facultyTimetable[facultyindex,day,slot] /\ (facultydetails[facultyindex,class,6] == 1)
             then 1
             else 0
             endif
         ) == 0
-        then facultyTimetable[f,d,s-1] = 0
+        then facultyTimetable[facultyindex,day,slot-1] = 0
         endif
     )
 );
