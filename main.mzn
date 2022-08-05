@@ -15,7 +15,8 @@ array[faculty_index_arr] of int : facultyids_array;
 int : max_num_diff_classes_per_week_for_single_fac;
 set of int:classes_per_week_for_single_fac_index_arr = 1..max_num_diff_classes_per_week_for_single_fac;
 
-array[faculty_index_arr,classes_per_week_for_single_fac_index_arr,1..7] of int: facultydetails;
+int : num_info_in_facultydetails;
+array[faculty_index_arr,classes_per_week_for_single_fac_index_arr,1..num_info_in_facultydetails] of int: facultydetails;
 
 int:num_sections;
 set of int:sections_index_arr = 1..num_sections;
