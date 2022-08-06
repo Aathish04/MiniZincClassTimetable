@@ -128,6 +128,28 @@ forall(facultyindex in faculty_index_arr,day in daysPerWeek)(
     )
 );
 
+% Ensure Lab sessions are always continous.
+constraint
+forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
+    if facultydetails[facultyindex,class,6] == 1
+    then forall(day in daysPerWeek, slot in slotsPerDay)(
+        if facultyTimetable[facultyindex,day,slot] == facultydetails[facultyindex,class,3]
+        then 
+            if slot == 1
+            then facultyTimetable[facultyindex,day,slot+1] == facultydetails[facultyindex,class,3]
+            endif /\
+            if slot == slots
+            then facultyTimetable[facultyindex,day,slot-1] == facultydetails[facultyindex,class,3]
+            endif /\
+            if (slot > 1 /\ slot < slots) /\ facultyTimetable[facultyindex,day,slot-1] != facultydetails[facultyindex,class,3]
+            then
+                facultyTimetable[facultyindex,day,slot+1] == facultydetails[facultyindex,class,3]
+            endif
+        endif
+    )
+    endif
+);
+
 % Room Related Constraints
 % Room Limitation Constraint
 constraint
