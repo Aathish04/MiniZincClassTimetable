@@ -217,7 +217,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     for (int i = 0; i < roomscsv_numrecords; i++)
     {
         roomsdetails[i][0] = strtol(roomscsv_raw_array[i][0], NULL, 10);
-        roomsdetails[i][1] = strtol(roomscsv_raw_array[i][1], NULL, 10);
+        roomsdetails[i][1] = strtol(roomscsv_raw_array[i][2], NULL, 10);
     }
     g_print("Done.\n");
 
