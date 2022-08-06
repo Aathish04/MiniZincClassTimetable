@@ -40,6 +40,13 @@ function var int: faculty_id_to_index(var int:facultyid) =
           | i in index_set(facultyids_array) ]
    );
 
+function var bool: courseid_is_lab(var int:courseid) = 
+    sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
+        if facultydetails[facultyindex,class,3] == courseid /\ facultydetails[facultyindex,class,6] == 1
+        then 1
+        else 0
+        endif
+    ) > 0;
 % Rules
 
 % Constrain faculty and sections to have a consistent timetable.
@@ -105,25 +112,18 @@ constraint
 forall(facultyindex in faculty_index_arr,day in daysPerWeek)(
     % Ensure faculty have free slot after every occupied slot unless
     % it is for a lab session.
-    forall(slot in slotsPerDay[1..slots-1])(
-        if facultyTimetable[facultyindex,day,slot] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
-            if facultydetails[facultyindex,class,3] == facultyTimetable[facultyindex,day,slot] /\ (facultydetails[facultyindex,class,6] == 1)
-            then 1
-            else 0
+    forall(slot in slotsPerDay)(
+        if slot < slots
+        then
+            if facultyTimetable[facultyindex,day,slot] > 0 /\ not courseid_is_lab(facultyTimetable[facultyindex,day,slot])
+            then facultyTimetable[facultyindex,day,slot+1] = 0
             endif
-        ) == 0
-        then facultyTimetable[facultyindex,day,slot+1] = 0
-        endif
-        % Ensure faculty have free slot after before occupied slot unless
-        % it is for a lab session.
-    ) /\ forall(slot in slotsPerDay[2..slots])(
-        if facultyTimetable[facultyindex,day,slot] > 0 /\ sum(class in classes_per_week_for_single_fac_index_arr)(
-            if facultydetails[facultyindex,class,3] == facultyTimetable[facultyindex,day,slot] /\ (facultydetails[facultyindex,class,6] == 1)
-            then 1
-            else 0
+        endif /\
+        if slot > 1
+        then
+            if facultyTimetable[facultyindex,day,slot] > 0 /\ not courseid_is_lab(facultyTimetable[facultyindex,day,slot])
+            then facultyTimetable[facultyindex,day,slot-1] = 0
             endif
-        ) == 0
-        then facultyTimetable[facultyindex,day,slot-1] = 0
         endif
     )
 );
