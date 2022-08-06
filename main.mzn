@@ -182,6 +182,19 @@ forall(facultyindex in faculty_index_arr,day in daysPerWeek, slot in slotsPerDay
     )
 );
 
+% Ensure lab classes are allotted lab classrooms.
+constraint
+forall(facultyindex in faculty_index_arr,day in daysPerWeek, slot in slotsPerDay)(
+    forall(roomid in rooms)(
+        if courseid_is_lab(facultyTimetable[facultyindex,day,slot])
+        then
+            if roomsdetails[roomid,2] != 1
+            then roomTimetable[roomid,day,slot] != facultyids_array[facultyindex]
+            endif
+        endif
+    )
+);
+
 % Ensure continous periods occur in the same room.
 constraint
 forall(facultyindex in faculty_index_arr,day in daysPerWeek, slot in slotsPerDay)(
