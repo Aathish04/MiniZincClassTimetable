@@ -73,6 +73,22 @@ forall (courseid in coursesarray)(
     )
 );
 
+% Ensure sections are only given courses they've been assigned.
+constraint
+forall(sectionindex in sections_index_arr, day in daysPerWeek, slot in slotsPerDay)(
+    if sectionTimetable[sectionindex, day, slot] > 0
+    then sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
+        if facultydetails[facultyindex, class, 3] == sectionTimetable[sectionindex, day, slot] /\
+            facultydetails[facultyindex, class, 2] == sectionids_array[sectionindex] /\
+            facultyTimetable[facultyindex, day, slot] == sectionTimetable[sectionindex, day, slot]
+        then 1
+        else 0
+        endif
+    ) > 0
+    endif
+    
+);
+
 % Constrain hours per week for course to hours_per_week for that course.
 constraint
 forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
