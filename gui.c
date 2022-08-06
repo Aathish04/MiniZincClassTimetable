@@ -11,10 +11,10 @@ const char defaultcoursescsvpath[] = "inputdata/Courses.csv";
 const char defaultfacultycsvpath[] = "inputdata/Faculty.csv";
 const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
 const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
-const float DEFAULT_NUM_SLOTS = 3.0;
+const float DEFAULT_NUM_SLOTS = 4.0;
 const float DEFAULT_DAYS_PER_WEEK = 2.0;
 const int num_info_in_facultydetails = 7;
-
+const int num_info_in_roomsdetails = 2;
 const int FILENOTFOUND_ERRORCODE = 32512;
 const int UNSATISFIABLECONSTRAINTS_ERRORCODE = 2;
 const int GENERIC_MINIZINC_ERRORCODE = 3;
@@ -34,7 +34,7 @@ void write_output_json_file(
     int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int unique_faculty_array[num_unique_faculty], int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][num_info_in_facultydetails],
     int num_unique_sections, int unique_sectionids_array[num_unique_sections],
     int num_unique_courses, int unique_courses_array[num_unique_courses],
-    int roomscsv_numrecords, int rooms_array[roomscsv_numrecords],
+    int roomscsv_numrecords, int roomsdetails[roomscsv_numrecords][num_info_in_roomsdetails],
     int num_slots_per_day, int num_days_per_week);
 int fill_unique_facultyarray_return_num_unique_faculty(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_faculty_array[facultycsv_numrecords]);
 int fill_unique_coursesarray_return_num_unique_courses(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_courses_array[facultycsv_numrecords]);
@@ -213,10 +213,11 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
     int unique_courses_array[facultycsv_numrecords];
     int num_unique_courses = fill_unique_coursesarray_return_num_unique_courses(facultycsv_numrecords, facultycsv_numcols, facultycsv_longestvaluelen + 1, facultycsv_raw_array, unique_courses_array);
 
-    int rooms_array[roomscsv_numrecords];
+    int roomsdetails[roomscsv_numrecords][num_info_in_roomsdetails];
     for (int i = 0; i < roomscsv_numrecords; i++)
     {
-        rooms_array[i] = strtol(roomscsv_raw_array[i][0], NULL, 10);
+        roomsdetails[i][0] = strtol(roomscsv_raw_array[i][0], NULL, 10);
+        roomsdetails[i][1] = strtol(roomscsv_raw_array[i][1], NULL, 10);
     }
     g_print("Done.\n");
 
@@ -226,7 +227,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
         num_unique_faculty, max_num_diff_classes_per_week_for_single_fac, unique_faculty_array, facultydetails_array,
         num_unique_sections, unique_sectionids_array,
         num_unique_courses, unique_courses_array,
-        roomscsv_numrecords, rooms_array,
+        roomscsv_numrecords, roomsdetails,
         num_slots_per_day, num_days_per_week);
     g_print("Done.\n");
 
@@ -773,7 +774,7 @@ void write_output_json_file(
     int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int unique_faculty_array[num_unique_faculty], int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][num_info_in_facultydetails],
     int num_unique_sections, int unique_sectionids_array[num_unique_sections],
     int num_unique_courses, int unique_courses_array[num_unique_courses],
-    int roomscsv_numrecords, int rooms_array[roomscsv_numrecords],
+    int roomscsv_numrecords, int roomsdetails[roomscsv_numrecords][num_info_in_roomsdetails],
     int num_slots_per_day, int num_days_per_week)
 {
     FILE *outputjsonfilepointer;
@@ -837,10 +838,10 @@ void write_output_json_file(
         }
     }
     fprintf(outputjsonfilepointer, "],");
-    fprintf(outputjsonfilepointer, "\"rooms\": [");
+    fprintf(outputjsonfilepointer, "\"roomsdetails\": [");
     for (int i = 0; i < roomscsv_numrecords; i++)
     {
-        fprintf(outputjsonfilepointer, "%d", rooms_array[i]);
+        fprintf(outputjsonfilepointer, "[%d,%d]",roomsdetails[i][0],roomsdetails[i][1]);
         if (i < roomscsv_numrecords - 1)
         {
             fprintf(outputjsonfilepointer, ",");
@@ -852,7 +853,8 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "\"days\":%d,", num_days_per_week);
     fprintf(outputjsonfilepointer, "\"max_num_diff_classes_per_week_for_single_fac\":%d,", max_num_diff_classes_per_week_for_single_fac);
     fprintf(outputjsonfilepointer, "\"num_faculty\":%d,", num_unique_faculty);
-    fprintf(outputjsonfilepointer, "\"num_sections\":%d", num_unique_sections);
+    fprintf(outputjsonfilepointer, "\"num_sections\":%d,", num_unique_sections);
+    fprintf(outputjsonfilepointer, "\"num_rooms\":%d", roomscsv_numrecords);
     fprintf(outputjsonfilepointer, "}");
     fclose(outputjsonfilepointer);
 }

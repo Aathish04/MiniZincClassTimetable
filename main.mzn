@@ -23,8 +23,9 @@ set of int:sections_index_arr = 1..num_sections;
 
 array[sections_index_arr] of int : sectionids_array;
 
-set of int: rooms;
-int:num_rooms = length(rooms);
+int: num_rooms;
+set of int: rooms = 1..num_rooms;
+array[rooms,1..2] of int: roomsdetails;
 set of int: coursesarray;
 
 % Final Output Timetable Arrays
