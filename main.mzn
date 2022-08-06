@@ -181,6 +181,25 @@ forall(facultyindex in faculty_index_arr,day in daysPerWeek, slot in slotsPerDay
     )
 );
 
+% Ensure continous periods occur in the same room.
+constraint
+forall(facultyindex in faculty_index_arr,day in daysPerWeek, slot in slotsPerDay)(
+    forall(roomid in rooms)(
+        if slot > 1
+        then
+            if facultyTimetable[facultyindex,day,slot-1] == facultyTimetable[facultyindex,day,slot] /\ roomTimetable[roomid,day,slot] == facultyids_array[facultyindex]
+            then roomTimetable[roomid,day,slot-1] == facultyids_array[facultyindex]
+            endif
+        endif /\
+        if slot < slots
+        then
+            if facultyTimetable[facultyindex,day,slot+1] == facultyTimetable[facultyindex,day,slot] /\ roomTimetable[roomid,day,slot] == facultyids_array[facultyindex]
+            then roomTimetable[roomid,day,slot+1] == facultyids_array[facultyindex]
+            endif
+        endif
+    )
+);
+
 % Limit rooms allotted to faculty for a particular slot to 1.
 constraint
 forall(facultyindex in faculty_index_arr, day in daysPerWeek, slot in slotsPerDay)( % For every faculty, day, slot combination
