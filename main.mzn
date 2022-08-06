@@ -33,13 +33,6 @@ array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTi
 array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array++(0..0)): roomTimetable;
 
 % Helper Functions
-function var int: faculty_id_to_index(var int:facultyid) =
-   sum(  [ if facultyid = facultyids_array[i]
-              then i
-           else 0 endif
-          | i in index_set(facultyids_array) ]
-   );
-
 function var bool: courseid_is_lab(var int:courseid) = 
     sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
         if facultydetails[facultyindex,class,3] == courseid /\ facultydetails[facultyindex,class,6] == 1
