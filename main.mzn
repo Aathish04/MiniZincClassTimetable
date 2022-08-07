@@ -160,6 +160,17 @@ forall(facultyindex in faculty_index_arr,day in daysPerWeek)(
     )
 );
 
+% % Ensure faculty have a maximum of two theory hours per day unless there is a lab session.
+% constraint 
+% forall(day in daysPerWeek,facultyindex in faculty_index_arr)
+%     (
+%         sum(slot in slotsPerDay)
+%            (if facultyTimetable[facultyindex,day,slot]!=0 /\ not courseid_is_lab(facultyTimetable[facultyindex,day,slot])
+%                then 1 
+%                else 0 
+%            endif) < 2
+%     );
+
 % Ensure Lab sessions are always continous.
 constraint
 forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
