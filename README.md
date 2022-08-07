@@ -11,15 +11,17 @@ Proper Development Installation Instructions:
 
 # TODOS:
 ## Hard Constraints:
-- [x] A classroom is assigned to just one lecture at a time.​
-- [x] Staff/Student clash checks - Faculty and Students are not allotted different classes at the same time.​
-- [x] The first hour must be allotted to an accredited course.
-- [ ] A faculty member may have a maximum of two theory hours and a maximum of one lab session per day.
-- [x] Electives are scheduled for the same session across departments.
-- [x] Faculty are not allotted Consecutive teaching hours.
+1. [x] A classroom is assigned to just one lecture at a time.​
+2. [x] Staff/Student clash checks - Faculty and Students are not allotted different classes at the same time.​
+3. [x] The first hour must be allotted to an accredited course.[Now Soft]
+4. [x] A break between forenoon and afternoon session must exist. [Implemented, but I don't really like it because the break occupies one of the slots.]
+5. [x] A faculty member may have a maximum of two theory hours ~~and a maximum of one lab session per day.~~ [Too restrictive. Maximum of one lab session needs some thought. Present in code, but commented out entirely.]
+6. [x] Electives are scheduled for the same session across departments.
+7. [x] Faculty are not allotted Consecutive teaching hours.
 
 ## Soft Constraints:
-Implement it as follows:
-1. Take each parameter bounded by a soft constraint and use `constrain` to set it to the number of times it is violated or passed depending on the type of soft constraing.
-2. Use `constrain` to set the value of a `objective_function_return` variable to some combination of the parameters described in point 1.
-3. Maximise or minimise `objective_function_return` depending on how exactly things are implemented.
+1. [x] Allotting Core subjects in the last time slot should be avoided.​
+2. [x] ~~Co-curricular~~ Non-credited subjects are allotted to the afternoon sessions.
+3. [x] Sessions alternate between Core and non-Core subjects. [Check this for consistency.]
+4. [x] First hour session is allotted to department faculty.​
+5. [x] First hour allotted to an accredited course.
