@@ -33,10 +33,20 @@ array[faculty_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: facultyTim
 array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
 array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array++(0..0)): roomTimetable;
 
+var int : num_times_first_hour_not_credited;
+
 % Helper Functions
 function var bool: courseid_is_lab(var int:courseid) = 
     sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
         if facultydetails[facultyindex,class,3] == courseid /\ facultydetails[facultyindex,class,6] == 1
+        then 1
+        else 0
+        endif
+    ) > 0;
+
+function var bool: courseid_is_credited(var int:courseid) = 
+    sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
+        if facultydetails[facultyindex,class,3] == courseid /\ facultydetails[facultyindex,class,5] > 0
         then 1
         else 0
         endif
@@ -241,5 +251,14 @@ forall(facultyindex in faculty_index_arr, day in daysPerWeek, slot in slotsPerDa
         endif) == 1 % Then the number of rooms allotted to that faculty will be limited to 1.
     endif
 );
+
+% Soft Constraints
+constraint
+num_times_first_hour_not_credited = sum(sectionsindex in sections_index_arr, day in daysPerWeek)(
+    if not courseid_is_credited(sectionTimetable[sectionsindex,day,1])
+    then 1
+    else 0
+    endif
+);
 % Method of Solving
-solve satisfy;
+solve minimize num_times_first_hour_not_credited
