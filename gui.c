@@ -11,7 +11,7 @@ const char defaultcoursescsvpath[] = "inputdata/Courses.csv";
 const char defaultfacultycsvpath[] = "inputdata/Faculty.csv";
 const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
 const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
-const float DEFAULT_NUM_SLOTS = 4.0;
+const int DEFAULT_NUM_SLOTS = 7;
 const float DEFAULT_DAYS_PER_WEEK = 2.0;
 const int num_info_in_facultydetails = 8;
 const int num_info_in_roomsdetails = 2;
@@ -35,7 +35,7 @@ void write_output_json_file(
     int num_unique_sections, int unique_sectionids_array[num_unique_sections],
     int num_unique_courses, int unique_courses_array[num_unique_courses],
     int roomscsv_numrecords, int roomsdetails[roomscsv_numrecords][num_info_in_roomsdetails],
-    int num_slots_per_day, int num_days_per_week);
+    int num_slots_per_day, int num_days_per_week, int break_slot);
 int fill_unique_facultyarray_return_num_unique_faculty(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_faculty_array[facultycsv_numrecords]);
 int fill_unique_coursesarray_return_num_unique_courses(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size], int unique_courses_array[facultycsv_numrecords]);
 int fill_unique_sectionid_array_return_num_unique_sections(int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size], int unique_sectionids_array[sectionscsv_numrecords]);
@@ -159,6 +159,13 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
     g_signal_connect(timetableentityselectorcombobox, "changed", G_CALLBACK(set_entity_model_for_treeview), timetabletypeselectorcombobox);
 }
 
+static void set_default_break_slot_value(GtkSpinButton *break_slot_button, gpointer data)
+{
+    GtkSpinButton *current_num_slots_spinbutton = data;
+    gtk_spin_button_set_range(break_slot_button, 0, gtk_spin_button_get_value_as_int(current_num_slots_spinbutton) - 1);
+    gtk_spin_button_set_value(break_slot_button, 2 * gtk_spin_button_get_value_as_int(current_num_slots_spinbutton) / 3 + 1);
+}
+
 static void solve_for_timetable(GtkButton *button, gpointer data)
 {
     GtkWidget *parent_window = g_object_get_data(G_OBJECT(button), "parent_window");
@@ -171,6 +178,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
 
     int num_slots_per_day = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "slotsperdayspinbutton")));
     int num_days_per_week = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "daysperweekspinbutton")));
+    int break_slot = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(g_object_get_data(G_OBJECT(button), "slotforbreakspinbutton")));
 
     g_print("Reading data from CSV Files... ");
     int coursescsv_numrecords, coursescsv_numcols, coursescsv_longestvaluelen;
@@ -228,7 +236,7 @@ static void solve_for_timetable(GtkButton *button, gpointer data)
         num_unique_sections, unique_sectionids_array,
         num_unique_courses, unique_courses_array,
         roomscsv_numrecords, roomsdetails,
-        num_slots_per_day, num_days_per_week);
+        num_slots_per_day, num_days_per_week, break_slot);
     g_print("Done.\n");
 
     int faculty_timetable_array[num_unique_faculty][num_days_per_week][num_slots_per_day];
@@ -479,6 +487,7 @@ static void activate(GtkApplication *app, gpointer user_data)
     GtkWidget *grid;
     GtkWidget *button;
     GtkWidget *solvebutton;
+    GtkWidget *break_slot_button;
     GtkWidget *label;
     GtkWidget *pathtextentry;
 
@@ -566,8 +575,19 @@ static void activate(GtkApplication *app, gpointer user_data)
     g_object_set_data(G_OBJECT(solvebutton), "slotsperdayspinbutton", button);
     gtk_grid_attach(GTK_GRID(grid), button, 1, 5, 1, 1);
 
+    label = gtk_label_new("Slot for FN/AN Break [0 For No Break]:");
+    gtk_grid_attach(
+        GTK_GRID(grid),
+        label,
+        0, 6, 1, 1);
+    break_slot_button = gtk_spin_button_new(gtk_adjustment_new(2 * DEFAULT_NUM_SLOTS / 3 + 1, 0, DEFAULT_NUM_SLOTS - 1, 1.0, 1.0, 0.0), 1.0, 0);
+    g_object_set_data(G_OBJECT(solvebutton), "slotforbreakspinbutton", break_slot_button);
+    gtk_grid_attach(GTK_GRID(grid), break_slot_button, 1, 6, 1, 1);
+
+    g_signal_connect_swapped(button, "value-changed", G_CALLBACK(set_default_break_slot_value), break_slot_button);
+
     g_signal_connect(solvebutton, "clicked", G_CALLBACK(solve_for_timetable), NULL);
-    gtk_grid_attach(GTK_GRID(grid), solvebutton, 0, 6, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), solvebutton, 0, 7, 2, 1);
 
     gtk_widget_show(window);
 }
@@ -776,7 +796,7 @@ void write_output_json_file(
     int num_unique_sections, int unique_sectionids_array[num_unique_sections],
     int num_unique_courses, int unique_courses_array[num_unique_courses],
     int roomscsv_numrecords, int roomsdetails[roomscsv_numrecords][num_info_in_roomsdetails],
-    int num_slots_per_day, int num_days_per_week)
+    int num_slots_per_day, int num_days_per_week, int break_slot)
 {
     FILE *outputjsonfilepointer;
     outputjsonfilepointer = fopen(OutputJSONPath, "w");
@@ -855,7 +875,8 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "\"max_num_diff_classes_per_week_for_single_fac\":%d,", max_num_diff_classes_per_week_for_single_fac);
     fprintf(outputjsonfilepointer, "\"num_faculty\":%d,", num_unique_faculty);
     fprintf(outputjsonfilepointer, "\"num_sections\":%d,", num_unique_sections);
-    fprintf(outputjsonfilepointer, "\"num_rooms\":%d", roomscsv_numrecords);
+    fprintf(outputjsonfilepointer, "\"num_rooms\":%d,", roomscsv_numrecords);
+    fprintf(outputjsonfilepointer, "\"break_slot\":%d", break_slot);
     fprintf(outputjsonfilepointer, "}");
     fclose(outputjsonfilepointer);
 }

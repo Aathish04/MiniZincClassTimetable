@@ -28,6 +28,8 @@ set of int: rooms = 1..num_rooms;
 array[rooms,1..2] of int: roomsdetails;
 set of int: coursesarray;
 
+int: break_slot;
+
 % Final Output Timetable Arrays
 array[faculty_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: facultyTimetable;
 array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTimetable;
@@ -75,6 +77,22 @@ forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fa
     )
 );
 
+% Add a break slot if one is given
+constraint
+if break_slot > 0
+then
+    forall(day in daysPerWeek)(
+        forall(sectionindex in sections_index_arr)(
+            sectionTimetable[sectionindex,day,break_slot] == 0
+        ) /\
+        forall(facultyindex in faculty_index_arr)(
+            facultyTimetable[facultyindex,day,break_slot] == 0
+        ) /\
+        forall(roomid in rooms)(
+            roomTimetable[roomid,day,break_slot] == 0
+        )
+    )
+endif;
 % Ensure faculty are only given courses they've been assigned.
 % NOTE: THIS NEEDS MORE TESTING!!!
 constraint
