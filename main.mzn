@@ -34,6 +34,8 @@ array[sections_index_arr,daysPerWeek,slotsPerDay] of var coursesarray: sectionTi
 array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array++(0..0)): roomTimetable;
 
 var int : num_times_first_hour_not_credited;
+var int : num_times_first_hour_not_dept_faculty;
+var int : soft_constraint_minimization_function_return;
 
 % Helper Functions
 function var bool: courseid_is_lab(var int:courseid) = 
@@ -47,6 +49,14 @@ function var bool: courseid_is_lab(var int:courseid) =
 function var bool: courseid_is_credited(var int:courseid) = 
     sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
         if facultydetails[facultyindex,class,3] == courseid /\ facultydetails[facultyindex,class,5] > 0
+        then 1
+        else 0
+        endif
+    ) > 0;
+
+function var bool: courseid_secid_handled_by_dept_faculty(var int:courseid, var int: sectionid) = 
+    sum(facultyindex in faculty_index_arr, class in classes_per_week_for_single_fac_index_arr)(
+        if facultydetails[facultyindex,class,3] == courseid /\ facultydetails[facultyindex,class,2] == sectionid /\ facultydetails[facultyindex,class,7]==1
         then 1
         else 0
         endif
@@ -260,5 +270,17 @@ num_times_first_hour_not_credited = sum(sectionsindex in sections_index_arr, day
     else 0
     endif
 );
+
+constraint
+num_times_first_hour_not_dept_faculty = sum(sectionsindex in sections_index_arr, day in daysPerWeek)(
+    if not courseid_secid_handled_by_dept_faculty(sectionTimetable[sectionsindex,day,1],sectionids_array[sectionsindex])
+    then 1
+    else 0
+    endif
+);
+
+constraint
+soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty;
+
 % Method of Solving
-solve minimize num_times_first_hour_not_credited
+solve minimize soft_constraint_minimization_function_return
