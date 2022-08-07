@@ -13,7 +13,7 @@ const char defaultroomscsvpath[] = "inputdata/Rooms.csv";
 const char defaultsectionscsvpath[] = "inputdata/Sections.csv";
 const float DEFAULT_NUM_SLOTS = 4.0;
 const float DEFAULT_DAYS_PER_WEEK = 2.0;
-const int num_info_in_facultydetails = 7;
+const int num_info_in_facultydetails = 8;
 const int num_info_in_roomsdetails = 2;
 const int FILENOTFOUND_ERRORCODE = 32512;
 const int UNSATISFIABLECONSTRAINTS_ERRORCODE = 2;
@@ -672,7 +672,8 @@ void fill_facultydetails_array(
                 break;
             }
         }
-        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter++][6] = !strcmp(facultycsv_raw_array[i][1], sectionscsv_raw_array[sectionindex][2]); // Are they dept faculty for that sec?
+        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter][6] = !strcmp(facultycsv_raw_array[i][1], sectionscsv_raw_array[sectionindex][2]); // Are they dept faculty for that sec?
+        facultydetails_array[facultydetails_arrayfacultycounter][facultydetails_arrayclasscounter++][7] = strcasestr(coursescsv_raw_array[j][2], "elective") == NULL ? 0 : 1;
     }
 }
 
@@ -841,7 +842,7 @@ void write_output_json_file(
     fprintf(outputjsonfilepointer, "\"roomsdetails\": [");
     for (int i = 0; i < roomscsv_numrecords; i++)
     {
-        fprintf(outputjsonfilepointer, "[%d,%d]",roomsdetails[i][0],roomsdetails[i][1]);
+        fprintf(outputjsonfilepointer, "[%d,%d]", roomsdetails[i][0], roomsdetails[i][1]);
         if (i < roomscsv_numrecords - 1)
         {
             fprintf(outputjsonfilepointer, ",");
