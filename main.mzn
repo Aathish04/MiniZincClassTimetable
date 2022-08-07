@@ -35,6 +35,7 @@ array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array++(0..0)):
 
 var int : num_times_first_hour_not_credited;
 var int : num_times_first_hour_not_dept_faculty;
+var int : num_times_last_hour_credited;
 var int : soft_constraint_minimization_function_return;
 
 % Helper Functions
@@ -280,7 +281,15 @@ num_times_first_hour_not_dept_faculty = sum(sectionsindex in sections_index_arr,
 );
 
 constraint
-soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty;
+num_times_last_hour_credited = sum(sectionsindex in sections_index_arr, day in daysPerWeek)(
+    if courseid_is_credited(sectionTimetable[sectionsindex,day,slots])
+    then 1
+    else 0
+    endif
+);
+
+constraint
+soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty + num_times_last_hour_credited; 
 
 % Method of Solving
 solve minimize soft_constraint_minimization_function_return
