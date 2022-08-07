@@ -39,6 +39,7 @@ var int : num_times_first_hour_not_credited;
 var int : num_times_first_hour_not_dept_faculty;
 var int : num_times_last_hour_credited;
 var int : num_times_sessions_not_alternate_bw_credited_and_not_credited;
+var int : num_noncredited_courses_in_forenoon;
 var int : soft_constraint_minimization_function_return;
 
 % Helper Functions
@@ -339,8 +340,21 @@ num_times_sessions_not_alternate_bw_credited_and_not_credited = sum(sectionsinde
     else 0
     endif
 );
+
 constraint
-soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty + num_times_last_hour_credited + num_times_sessions_not_alternate_bw_credited_and_not_credited; 
+if break_slot > 0
+then
+    num_noncredited_courses_in_forenoon = sum(facultyindex in faculty_index_arr, day in daysPerWeek, slot in slotsPerDay)(
+        if facultyTimetable[facultyindex,day,slot] > 0 /\ not courseid_is_credited(facultyTimetable[facultyindex,day,slot]) /\ slot < break_slot
+        then 1
+        else 0
+        endif
+    )
+else num_noncredited_courses_in_forenoon = 0
+endif;
+
+constraint
+soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty + num_times_last_hour_credited + num_times_sessions_not_alternate_bw_credited_and_not_credited + num_noncredited_courses_in_forenoon; 
 
 % Method of Solving
 solve minimize soft_constraint_minimization_function_return
