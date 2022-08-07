@@ -36,6 +36,7 @@ array[rooms,daysPerWeek,slotsPerDay] of var array2set(facultyids_array++(0..0)):
 var int : num_times_first_hour_not_credited;
 var int : num_times_first_hour_not_dept_faculty;
 var int : num_times_last_hour_credited;
+var int : num_times_sessions_not_alternate_bw_credited_and_not_credited;
 var int : soft_constraint_minimization_function_return;
 
 % Helper Functions
@@ -288,8 +289,29 @@ num_times_last_hour_credited = sum(sectionsindex in sections_index_arr, day in d
     endif
 );
 
+% Might need to refactor this.
+% Try to make courses alternate between credited and noncredited for students.
 constraint
-soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty + num_times_last_hour_credited; 
+num_times_sessions_not_alternate_bw_credited_and_not_credited = sum(sectionsindex in sections_index_arr, day in daysPerWeek, slot in slotsPerDay)(
+    if courseid_is_credited(sectionTimetable[sectionsindex,day,slot])
+    then
+        if slot != slots
+        then
+            if courseid_is_credited(sectionTimetable[sectionsindex,day,slot+1])
+            then 1
+            else 0
+            endif
+        else
+            if courseid_is_credited(sectionTimetable[sectionsindex,day,slot-1])
+            then 1
+            else 0
+            endif
+        endif
+    else 0
+    endif
+);
+constraint
+soft_constraint_minimization_function_return = num_times_first_hour_not_credited + num_times_first_hour_not_dept_faculty + num_times_last_hour_credited + num_times_sessions_not_alternate_bw_credited_and_not_credited; 
 
 % Method of Solving
 solve minimize soft_constraint_minimization_function_return
