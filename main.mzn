@@ -160,6 +160,22 @@ forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fa
     endif
 );
 
+% Ensure lab sessions are held at the same slot and same day for all classes.
+constraint
+forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fac_index_arr)(
+    if facultydetails[facultyindex,class,8] == 1
+    then forall(day in daysPerWeek, slot in slotsPerDay)(
+        if facultyTimetable[facultyindex, day, slot] == facultydetails[facultyindex,class,3]
+        then forall(facultyindex2 in faculty_index_arr)(
+            if facultydetails[facultyindex,class,3] == facultydetails[facultyindex2,class,3]
+            then facultyTimetable[facultyindex2,day,slot] == facultyTimetable[facultyindex, day, slot]
+            endif
+        )
+        endif
+    )
+    endif
+);
+
 % Room Related Constraints
 % Room Limitation Constraint
 constraint

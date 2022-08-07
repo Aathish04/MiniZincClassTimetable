@@ -15,7 +15,7 @@ Proper Development Installation Instructions:
 - [x] Staff/Student clash checks - Faculty and Students are not allotted different classes at the same time.​
 - [x] The first hour must be allotted to an accredited course.
 - [ ] A faculty member may have a maximum of two theory hours and a maximum of one lab session per day.
-- [ ] Electives are scheduled for the same session across departments.
+- [x] Electives are scheduled for the same session across departments.
 - [x] Faculty are not allotted Consecutive teaching hours.
 
 ## Soft Constraints:
