@@ -1,19 +1,19 @@
 facultyid,departmentname,name,sectionid,courseid
 4,cse,Dr. R. Kanchana,0,3
 8,cse,Dr. J. Suresh,1,3
-30,cse,Ms. S. Angel Deborah,1,4
 24,cse,Mr. B. Senthil Kumar,0,4
-228,maths,Dr. S. Yugesh,0,5
-226,maths,Dr. C. Kalaivani,1,5
-239,chem,Dr. Tanusree Sengupta,1,0
-240,chem,Dr. N. Priyadarshini,0,0
+30,cse,Ms. S. Angel Deborah,1,4
 88,eee,Dr. Alagu Dheeraj,0,6
 93,eee,Dr. G.R. Venkatakrishnan,1,6
-211,english,Dr. M. Shyamala Bharathy,1,11
+211,english,Dr. M. Shyamala Bharathy,0,11
 212,english,Dr. Martha Karunakar,1,10
-213,english,Dr. D. Praveen Sam,1,8
+213,english,Dr. D. Praveen Sam,0,8
 214,english,Dr C Lakshmi,1,9
+226,maths,Dr. C. Kalaivani,0,5
+228,maths,Dr. S. Yugesh,1,5
+239,chem,Dr. Tanusree Sengupta,0,12
+240,chem,Dr. N. Priyadarshini,1,12
 311,english,Dr. M. Shyamala Bharathy,0,11
-312,english,Dr. Martha Karunakar,0,10
+312,english,Dr. Martha Karunakar,1,10
 313,english,Dr. D. Praveen Sam,0,8
-314,english,Dr C Lakshmi,0,9
+314,english,Dr C Lakshmi,1,9
