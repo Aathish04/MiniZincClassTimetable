@@ -1,0 +1,5 @@
+sectionid,semester,department,sectionname
+# Hashtag is comment when read by custom parser.
+0,2,bme,A
+1,2,mech,A
+2,2,mech,B

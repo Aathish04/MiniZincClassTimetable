@@ -1,0 +1,15 @@
+courseid,coursecode,coursename,hoursperweek,numcredits,islab
+0,UCY2276,Environmental Science,3,0,0
+1,UXX0001, Sports Hour,-1,0,0
+2,UXX0002, Mentor Hour,-1,0,0
+3,UCS2201,Fundamentals and Practice of Software Development,3,4,1
+4,UCS2202,Foundations of Data Science,3,4,0
+5,UMA2276,Complex Functions and Laplace Transforms,4,4,0
+6,UEE2276,Basic Electrical and Electronics Engineering,3,3,0
+7,UXX0000, Library,-1,0,0
+8,UEHS2242,Applications of Psychology in everyday life,4,4,0
+9,UHS2241,Human Relations at Work,4,4,0
+10,UHS2243,Film Appreciation,4,4,0
+11,UEN2241,Language and Communication,4,4,0
+
+

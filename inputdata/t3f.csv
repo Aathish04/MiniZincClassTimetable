@@ -1,0 +1,15 @@
+facultyid,departmentname,name,sectionid,courseid
+69,eee,Dr. V. Kamaraj,0,1
+68,eee,Dr. V. Kamaraj,1,2
+70,eee,Dr. R. Rengaraj,0,4
+71,eee,Dr. R. Rengaraj,1,4
+218,maths,Dr. N. Padmapriya,0,3
+219,maths,Dr. R. Sundareswaran,1,3
+238,chem,Dr. A. Murugesan,0,0
+239,chem,Dr. Tanusree ,1,0
+80,eee,Dr. R. Deepalaxmi,0,5
+75,eee,Dr. N.B. Muthu Selvan,1,5
+130,mech,Dr. B. Anand Ronald,0,5
+131,mech,Dr. K. Babu,1,5
+
+

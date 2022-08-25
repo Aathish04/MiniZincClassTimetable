@@ -1,13 +1,15 @@
 sectionid,semester,department,sectionname
 # Hashtag is comment when read by custom parser.
-0,1,cse,A
-1,1,cse,8
-2,1,eee,A
-3,1,eee,B
-4,
-5
-6
-7
-8
-9
-1
+0,2,cse,A
+1,2,cse,B
+2,2,eee,A
+3,2,eee,B
+4,2,it,A
+5,2,it,B
+6,2,bme,A
+7,2,bme,B
+8,2,mech,A
+9,2,mech,B
+10,2,ece,A
+11,2,ece,B
+

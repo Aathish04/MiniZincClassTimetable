@@ -1,0 +1,9 @@
+courseid,coursecode,coursename,hoursperweek,numcredits,islab
+0,UCY2276,Environmental Science,3,0,0
+1,UEE2201,Electrical Circuits & Systems Fundamental and Practice,3,3,0
+2,UME2251,Engineering Mechanics for Electrical Engineers,3,3,0
+3,UMA2276,Complex Functions and Laplace Transforms,4,4,0
+4,UEE2276,Basic Electrical and Electronics Engineering,3,3,0
+5,UGE2297,Design Thinking & Engineering Practices Lab,3,3,3
+6,UXX0001, Sports Hour,-1,0,0
+7,UXX0002, Mentor Hour,-1,0,0

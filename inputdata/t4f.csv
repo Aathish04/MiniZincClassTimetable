@@ -1,0 +1,29 @@
+facultyid,departmentname,name,sectionid,courseid
+125,mech,Dr. V.E. Annamalai,1,5
+126,mech,Dr. K.S. Vijay Sekar,2,5
+127,mech,Dr. S.R. Koteswara Rao,1,7
+128,mech,Dr. S. Vijayan,2,7
+179,bme,Dr. A. Kavitha,1,9
+180,bme,Dr. V. Mahesh,1,10
+181,bme,Dr. S. Pravin Kumar,1,11
+182,bme,Dr. L. Suganthi,1,12
+209,english,Dr. S. Thiruvenkataswami,0,0
+210,english,Dr. Divya John,0,1
+211,english,Dr. M. Shyamala Bharathy,0,2
+212,english,Dr. Martha Karunakar,0,3
+309,english,Dr. S. Thiruvenkataswami,1,0
+310,english,Dr. Divya John,1,1
+311,english,Dr. M. Shyamala Bharathy,1,2
+312,english,Dr. Martha Karunakar,1,3
+409,english,Dr. S. Thiruvenkataswami,2,0
+410,english,Dr. Divya John,2,1
+411,english,Dr. M. Shyamala Bharathy,2,2
+412,english,Dr. Martha Karunakar,2,3
+215,maths,Dr. S. Narasimman,0,4
+216,maths,Dr. B. Praba,1,4
+217,maths,Dr. B. Praba,2,4
+245,chem,Dr. S.I. Davis Presley,0,6
+246,chem,Dr. T. Arun Luiz,2,6
+243,chem,Dr. M. Siluvai Michael,1,6
+78,eee,Dr. U. Shajith Ali,1,8
+79,eee,Dr. M. Devesh Raj,2,8

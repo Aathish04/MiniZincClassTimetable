@@ -1,248 +1,53 @@
-facultyid,departmentname,name
-0,cse,Dr. T.T. Mirnalinee
-1,cse,Dr. Chitra Babu
-2,cse,Dr. D. Venkata Vara Prasad
-3,cse,Dr. A. Chamundeswari
-4,cse,Dr. R. Kanchana
-5,cse,Dr. G. Raghu Raman
-6,cse,Dr. V.S. Felix Enigo
-7,cse,Dr. B. Bharathi
-8,cse,Dr. J. Suresh
-9,cse,Dr. J. Bhuvana
-10,cse,Dr. S. Kavitha
-11,cse,Dr. P. Mirunalini
-12,cse,Dr. D. Thenmozhi
-13,cse,Dr. S. Saraswathi
-14,cse,Dr. K. Vallidevi
-15,cse,Dr. B. Prabavathy
-16,cse,Dr. K. Madheswari
-17,cse,Dr. K. Lekshmi
-18,cse,Dr. R. Priyadharsini
-19,cse,Dr. S.V. Jansi Rani 
-20,cse,Dr. Y.V. Lokeswari
-21,cse,Dr. V. Balasubramanian
-22,cse,Dr. S. Rajalakshmi
-23,cse,Dr. K.R Sarath Chandran
-24,cse,Mr. B. Senthil Kumar
-25,cse,Dr. N. Sujaudeen
-26,cse,Dr. A. Beulah
-27,cse,Dr. M. Saritha
-28,cse,Dr. H. Shahul Hamead
-29,cse,Ms. S. Lakshmi Priya
-30,cse,Ms. S. Angel Deborah
-31,cse,Dr. S. Manisha
-32,ece,Dr. S. Radha
-33,ece,Dr. P. Vijayalakshmi
-35,ece,Dr. Premanand Chandramani
-35,ece,Dr. R. Amutha
-36,ece,Dr. N. Venkateswaran
-37,ece,Dr. R. Jayaparvathy
-38,ece,Dr. Krishnasamy T. Selvan
-39,ece,Dr. A. Jawahar
-40,ece,Dr. N. Edna Elizabeth
-41,ece,Dr. R. Rajavel
-42,ece,Dr. R. Kishore
-43,ece,Dr. Sreeja
-44,ece,Dr. K. Muthumeenakshi
-45,ece,Dr. K.S. Vishvaksenan
-46,ece,Dr. S. Sakthivel Murugan
-47,ece,Dr. M. Gulam Nabi Alsath 
-48,ece,Dr. S. Esther Florence
-49,ece,Dr. R. Hemalatha
-50,ece,Dr. S. Ramprabhu
-51,ece,Dr. R. Kalidoss
-52,ece,Dr. K.J. Jegadish Kumar
-53,ece,Dr. V. Vaithianathan
-54,ece,Dr. K.K. Nagarajan
-55,ece,Dr. M. Anbu Selvi
-56,ece,Dr. C. Annadurai
-57,ece,Dr. B. Ramani
-58,ece,Dr. B. Partibane
-59,ece,Dr. I. Nelson
-60,ece,Dr. W. Jino Hans
-61,ece,Dr. S. Kirubaveni
-62,ece,Dr. N. Prabagarane
-63,ece,Dr. P. Kaythry
-64,ece,Dr. G. Durga
-65,ece,Dr. C. Vinothkumar
-66,ece,Dr. S.Karthie alias Ayyadurai
-67,ece,Dr. S. Hanis
-68,eee,Dr. V. Rajini
-69,eee,Dr. V. Kamaraj
-70,eee,Dr. R. Rengaraj
-71,eee,Dr. R. Seyezhai
-72,eee,Dr. R. Ramaprabha
-73,eee,Dr . M. Balaji
-74,eee,Dr. Mrunal Deshpande
-75,eee,Dr. N.B. Muthu Selvan
-76,eee,Dr. M. Senthil Kumaran
-77,eee,Dr. K. Murugesan
-78,eee,Dr. U. Shajith Ali
-79,eee,Dr. M. Devesh Raj
-80,eee,Dr. R. Deepalaxmi
-81,eee,Dr. S. Tamil Selvi
-82,eee,Dr. K. Usha
-83,eee,Dr. M. Pandikumar
-84,eee,Dr. P. Saravanan
-85,eee,Dr. J. Anitha Roseline
-86,eee,Dr. V.S. Nagarajan
-87,eee,Dr. R. Leo
-88,eee,Dr. Alagu Dheeraj
-89,eee,Dr. V. Thiyagarajan
-90,eee,Mr. A. Balasubramanian
-91,eee,Dr. S. Krishnaveni
-92,eee,Dr. D. Umarani
-93,eee,Dr. G.R. Venkatakrishnan
-94,eee,Dr. Vaishnavi Ravi
-95,it,Dr. Chandrabose Aravindan
-96,it,Dr. R. Srinivasan
-97,it,Dr. A. Shahina
-98,it,Mr. V. Sivamurugan
-99,it,Dr. T. Sree Sharmila
-100,it,Dr. N. Bhalaji
-101,it,Dr. S. Chithra
-102,it,Dr. S. Karthika
-103,it,Dr. S. Mohanavalli
-104,it,Dr. P. Vasuki
-105,it,Dr. N. Sripriya
-106,it,Dr. K.R Uthayan
-107,it,Dr. I. Joe Louis Paul
-108,it,Dr. V. Thanikachalam
-109,it,Dr. S. Sasirekha
-110,it,Dr. E.M. Malathy
-111,it,Dr. T. Shanmughapriya
-112,it,Dr. R. Swathika
-113,it,Dr. N. Radha
-114,it,Dr. A. Sandana Karuppan
-115,it,Dr. V. Arulkumar
-116,it,Dr. K. Kabilan
-117,it,Dr. J. Sofia Jennifer
-118,it,Dr. K. S. Gayathri
-119,it,Dr. S. Uma Maheswari
-120,it,Dr. S. Vidhusha
-121,it,Ms. J.K. Josephine Julina
-122,it,Dr. Ashwinth Janarthanan
-123,it,Dr. E. Suganya
-124,it,Dr. J. Betina Antony
-125,mech,Dr. V.E. Annamalai
-126,mech,Dr. K.S. Vijay Sekar
-127,mech,Dr. S.R. Koteswara Rao
-128,mech,Dr. S. Vijayan
-129,mech,Dr. N. Lakshmi Narasimhan 
-130,mech,Dr. B. Anand Ronald
-131,mech,Dr. K. Babu
-132,mech,Dr. M. Selvaraj
-133,mech,Dr. M. Suresh
-134,mech,Dr. K.S. Jayakumar
-135,mech,Dr. M.S. Alphin
-136,mech,Dr. S. Suresh Kumar
-137,mech,Dr. K. Rajkumar
-138,mech,Dr. A.K. Lakshminarayanan
-139,mech,Dr. D. Ananthapadmanaban
-140,mech,Dr. S. Rajkumar
-141,mech,Dr. R.Prakash
-142,mech,Dr. A.S. Ramana
-143,mech,Dr. M. Nalla Mohamed
-144,mech,Dr. M. Dhananchezian
-145,mech,Dr. G. Satheesh Kumar
-146,mech,Dr. R. Damodaram
-147,mech,Dr. K. Jayakumar
-148,mech,Dr. L. Poovazhagan
-149,mech,Dr. G. Selvakumar
-150,mech,Dr. K.L. Hari Krishna
-151,mech,Dr. R. Vimal Samsingh
-152,mech,Dr. R. Rajeswari
-153,mech,Mr. D. Ebenezer
-154,mech,Dr. C. Arun Prakash 
-155,mech,Dr. T. Micha Premkumar
-156,mech,Dr. Anirudh Venkatraman Krishnan
-157,mech,Dr. B. Jayakishan
-158,mech,Dr. S. Santosh
-159,mech,Dr. Divya Zindani
-160,mech,Dr. S.A.Srinivasan
-161,mech,Dr. T. Vinoth
-162,mech,Dr.P.Dhamodharan
-163,chemical,Dr. K. Sathish Kumar
-164,chemical,Dr. B. Chitra
-165,chemical,Dr. R. Parthiban
-166,chemical,Dr. V. Jaikumar
-167,chemical,Dr. Kilaru Harsha Vardhan
-168,chemical,Dr. K. Jagannathan
-169,chemical,Dr. P. Senthil Kumar
-170,chemical,Dr. D. Gnana Prakash
-171,chemical,Dr. M. Subramanian
-172,chemical,Dr. K.P. Gopinath
-173,chemical,Dr. B. Ambedkar
-174,chemical,Dr. J. Dhanalakshmi
-175,chemical,Dr. R. Anantharaj
-176,chemical,Dr. Balaji D 
-177,chemical,Dr Nalinkanth V Ghone
-178,chemical,Dr Pachimatla Rajesh
-179,bme,Dr. A. Kavitha
-180,bme,Dr. V. Mahesh
-181,bme,Dr. S. Pravin Kumar
-182,bme,Dr. L. Suganthi
-183,bme,Dr. J. Vijay
-184,bme,Dr. S. Arun Karthick
-185,bme,Dr. B. Geethanjali
-186,bme,Dr. K. Nirmala
-187,bme,Dr. Sachin Gaurishankar Sarate
-188,bme,Dr. Dhanalakshmi M
-189,bme,Ms. R. Nithya
-190,bme,Dr. R. Subashini
-191,bme,Ms. B. Divya
-192,bme,Dr. N. Punitha
-193,bme,Dr.S.Saranya
-194,bme,Dr. Pauline John
-195,civil,Dr. N. Sivakumar
-196,civil,Dr. Y.K. Sabapathy
-197,civil,Dr. S. Ramana Gopal
-198,civil,Dr. P. Sree Hari
-199,civil,Dr. B. Mahalingam
-200,civil,Dr. R. Rajkumar
-201,civil,Dr. Srinath Rajagopalan
-202,civil,Dr. R. Vijayalakshmi
-203,civil,Dr. S.V. Sivapriya
-204,civil,Dr. P. Sangeetha
-205,civil,Dr. Jijo James
-206,civil,Ms. R. Sumetha
-207,civil,Dr. Surendar Natarajan
-208,civil,Mr. Aswin Sriram G
-209,english,Dr. S. Thiruvenkataswami
-210,english,Dr. Divya John
-211,english,Dr. M. Shyamala Bharathy
-212,english,Dr. Martha Karunakar
-213,english,Dr. D. Praveen Sam
-214,english,Dr C Lakshmi
-215,maths,Dr. S. Narasimman
-216,maths,Dr. B. Praba
-217,maths,Dr. JayakaranAmalraj Isaac
-218,maths,Dr. N. Padmapriya
-219,maths,Dr. R. Sundareswaran
-220,maths,Dr. M. Shanmugapriya
-221,maths,Dr. G. Kalpana
-222,maths,Dr. S. Sophia
-223,maths,Dr. S. Vanitha
-224,maths,Dr. M. Sundarakannan
-225,maths,Dr. T. M. Rajalaxmi
-226,maths,Dr. C. Kalaivani
-227,maths,Dr. S. Sampath Kumar
-228,maths,Dr. S. Yugesh
-229,physics,Dr. S. Masilla Moses Kennedy
-230,physics,Dr. Julie Charles
-231,physics,Mr. S. Singaravadivelu
-232,physics,Dr. G. Anandha Babu
-233,physics,Dr. P. Rajesh
-234,physics,Dr. P. Nagapandiselvi
-235,physics,Dr. A. Chandrasekaran
-236,physics,Dr. M. Srinivasan
-237,physics,Dr. Nafis Ahmed
-238,chem,Dr. A. Murugesan
-239,chem,Dr. Tanusree Sengupta
-240,chem,Dr. N. Priyadarshini
-241,chem,Dr. V.S. Gayathri
-242,chem,Dr. Sunita Nair
-243,chem,Dr. M. Siluvai Michael
-244,chem,Dr. M. Mahalakshmi
-245,chem,Dr. S.I. Davis Presley
-246,chem,Dr. T. Arun Luiz 
+facultyid,departmentname,name,sectionid,courseid
+209,english,Dr. S. Thiruvenkataswami,0,1
+210,english,Dr. Divya John,0,2
+211,english,Dr. M. Shyamala Bharathy,0,3
+212,english,Dr. Martha Karunakar,0,4
+213,english,Dr. S. Thiruvenkataswami,1,1
+214,english,Dr. Divya John,1,2
+215,english,Dr. M. Shyamala Bharathy,1,3
+216,english,Dr. Martha Karunakar,1,4
+217,english,Dr. S. Thiruvenkataswami,2,1
+218,english,Dr. Divya John,2,2
+219,english,Dr. M. Shyamala Bharathy,2,3
+220,english,Dr. Martha Karunakar,2,4
+221,english,Dr. S. Thiruvenkataswami,3,1
+222,english,Dr. Divya John,3,2
+223,english,Dr. M. Shyamala Bharathy,3,3
+224,english,Dr. Martha Karunakar,3,4
+225,english,Dr. S. Thiruvenkataswami,4,1
+226,english,Dr. Divya John,4,2
+227,english,Dr. M. Shyamala Bharathy,4,3
+228,english,Dr. Martha Karunakar,4,4
+229,english,Dr. S. Thiruvenkataswami,5,1
+230,english,Dr. Divya John,5,2
+231,english,Dr. M. Shyamala Bharathy,5,3
+232,english,Dr. Martha Karunakar,5,4
+233,english,Dr. S. Thiruvenkataswami,6,1
+234,english,Dr. Divya John,6,2
+235,english,Dr. M. Shyamala Bharathy,6,3
+236,english,Dr. Martha Karunakar,6,4
+237,english,Dr. S. Thiruvenkataswami,7,1
+238,english,Dr. Divya John,7,2
+239,english,Dr. M. Shyamala Bharathy,7,3
+240,english,Dr. Martha Karunakar,7,4
+241,english,Dr. M. Shyamala Bharathy,8,1
+242,english,Dr. Martha Karunakar,8.2
+243,english,Dr. D. Praveen Sam,8,3
+244,english,Dr C Lakshmi,8,4
+245,english,Dr. M. Shyamala Bharathy,9,1
+246,english,Dr. Martha Karunakar,9,2
+247,english,Dr. D. Praveen Sam,9,3
+248,english,Dr C Lakshmi,9,4
+249,english,Dr. M. Shyamala Bharathy,10,1
+250,english,Dr. Martha Karunakar.10,2
+251,english,Dr. D. Praveen Sam,10,3
+252,english,Dr C Lakshmi,10,3
+253,english,Dr. M. Shyamala Bharathy,11,1
+254,english,Dr. Martha Karunakar,11,2
+255,english,Dr. D. Praveen Sam,11,3
+256,english,Dr C Lakshmi,11,3
+
+
+
+
