@@ -23,7 +23,7 @@ int int_value_in_array(int value, int array[], int arraylen);
 int calc_max_num_diff_classes_per_week_for_single_fac(int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
 char *coursename_from_courseid(int courseid, int coursescsv_numrecords, int coursescsv_numcols, int coursescsv_data_size, char coursescsv_raw_array[coursescsv_numrecords][coursescsv_numcols][coursescsv_data_size]);
 char *facultyname_from_facultyid(int facultyid, int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size]);
-char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int sectioncsv_numcols, int sectioncsv_data_size, char sectioncsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_data_size]);
+char *sectionname_from_sectionid(int sectionid, int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size]);
 void fill_facultydetails_array(
     int num_unique_faculty, int max_num_diff_classes_per_week_for_single_fac, int facultydetails_array[num_unique_faculty][max_num_diff_classes_per_week_for_single_fac][num_info_in_facultydetails],
     int facultycsv_numrecords, int facultycsv_numcols, int facultycsv_data_size, char facultycsv_raw_array[facultycsv_numrecords][facultycsv_numcols][facultycsv_data_size],
@@ -138,6 +138,8 @@ static void set_entityselector_entities(GtkComboBoxText *timetabletypeselectorco
     }
     else if (timetabletype == 1)
     {
+        fill_csv_raw_array(SectionsCSVPath, ',', '\n', '#', sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array);
+        fill_unique_sectionid_array_return_num_unique_sections(sectionscsv_numrecords, sectionscsv_numcols, sectionscsv_longestvaluelen + 1, sectionscsv_raw_array, unique_sectionids_array);
         for (int i = 0; i < num_unique_sections; i++)
         {
             gtk_combo_box_text_append_text(
@@ -778,13 +780,13 @@ char *facultyname_from_facultyid(int facultyid, int facultycsv_numrecords, int f
     return "Unknown Professor";
 }
 
-char *sectionname_from_sectionid(int sectionid, int sectioncsv_numrecords, int sectioncsv_numcols, int sectioncsv_data_size, char sectioncsv_raw_array[sectioncsv_numrecords][sectioncsv_numcols][sectioncsv_data_size])
+char *sectionname_from_sectionid(int sectionid, int sectionscsv_numrecords, int sectionscsv_numcols, int sectionscsv_data_size, char sectionscsv_raw_array[sectionscsv_numrecords][sectionscsv_numcols][sectionscsv_data_size])
 {
-    for (int i = 0; i < sectioncsv_numrecords; i++)
+    for (int i = 0; i < sectionscsv_numrecords; i++)
     {
-        if (sectionid == strtol(sectioncsv_raw_array[i][0], NULL, 10))
+        if (sectionid == strtol(sectionscsv_raw_array[i][0], NULL, 10))
         {
-            return g_strdup_printf("%s %s Sem %s", sectioncsv_raw_array[i][2], sectioncsv_raw_array[i][3], sectioncsv_raw_array[i][1]);
+            return g_strdup_printf("%s %s Sem %s", sectionscsv_raw_array[i][2], sectionscsv_raw_array[i][3], sectionscsv_raw_array[i][1]);
         }
     }
     return "Unknown Section";
