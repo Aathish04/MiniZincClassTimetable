@@ -142,20 +142,6 @@ forall(facultyindex in faculty_index_arr,class in classes_per_week_for_single_fa
     ) == facultydetails[facultyindex,class,4]
 );
 
-% Ensure first hour goes to an accredited course for every section.
-constraint
-forall(section_index in sections_index_arr, day in daysPerWeek)(
-    if sectionTimetable[section_index,day,1] > 0
-    then sum(
-        facultyindex in faculty_index_arr,
-        class in classes_per_week_for_single_fac_index_arr)(
-            if facultydetails[facultyindex,class,3]==sectionTimetable[section_index,day,1] /\ facultydetails[facultyindex,class,5] > 0
-            then 1
-            else 0
-            endif
-        ) > 0
-    endif
-);
 
 % Ensure faculty do not have consecutive teaching hours unless
 % it is for a lab session.
@@ -358,3 +344,5 @@ soft_constraint_minimization_function_return = num_times_first_hour_not_credited
 
 % Method of Solving
 solve minimize soft_constraint_minimization_function_return
+
+% solve satisfy
