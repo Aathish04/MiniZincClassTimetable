@@ -54,6 +54,3 @@ dkms.conf
 # MacOS and VSCode.
 .DS_Store
 .vscode/*
-
-# Project Specific
-lib/ext/
