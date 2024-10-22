@@ -6,8 +6,7 @@ This repository contains the source code, some input data, and some documentatio
 - Team Name: DB4C
 - Team Members: [Aathish Sivasubrahmanian](https://github.com/Aathish04/), [Ayshwarya Badhrinath](https://github.com/Ayshu05), [Harshida Sujatha Palaniraj](https://github.com/spharshida)
 
-This project consists of a front-end application built in C that interfaces
-with a constraint-satisfaction/minimisation model written in MiniZinc, which is a constraint solver interfacer that is used to solve Constraint Logic Programming Problems.
+This project consists of a front-end application built in C that interfaces with a constraint-satisfaction/minimisation model written in MiniZinc, which is a constraint solver interfacer that is used to solve Constraint Logic Programming Problems.
 
 ## Compilation
 The C Front-End Application is built with the help of certain external Libraries.
